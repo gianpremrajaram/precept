@@ -61,7 +61,7 @@ The MVP deliberately defers: mutual-information-theoretic scoring (validated pos
 
 | Epic | ID range | Priority | Sprint | Issues |
 |---|---|---|---|---|
-| E1. Repository & Build Foundation | PRC-001 to PRC-004, PRC-004a | P0 | Sprint 0 | 5 |
+| E1. Repository & Build Foundation | PRC-001 to PRC-004, PRC-002a, PRC-004a | P0 (PRC-002a P2) | Sprint 0 / pre-release | 6 |
 | E2. Contract Specification Layer | PRC-005 to PRC-009 | P0 | Sprint 1 | 5 |
 | E3. Scoring & Evaluation Engine | PRC-010 to PRC-013 | P0 | Sprint 1 | 4 |
 | E4. LangGraph Integration | PRC-014 to PRC-016 | P0 | Sprint 2 | 3 |
@@ -73,7 +73,7 @@ The MVP deliberately defers: mutual-information-theoretic scoring (validated pos
 | E10. Phase 2 - A2A Compatibility | PRC-031 to PRC-033 | P2 | Deferred | 3 |
 | E11. Phase 2 - Calibrated Scorer Integration | PRC-034 to PRC-036 | P2 | Deferred | 3 |
 
-**Total: 37 issues. MVP scope: 28 issues (PRC-001 to PRC-027 + PRC-004a). Phase 2: 9 issues (PRC-028 to PRC-036).**
+**Total: 38 issues. MVP scope: 28 issues (PRC-001 to PRC-027 + PRC-004a). Pre-public-release gate: PRC-002a. Phase 2: 9 issues (PRC-028 to PRC-036).**
 
 ---
 
@@ -221,7 +221,45 @@ Open-source projects that show up for accelerator review need a baseline of comm
 
 ### Definition of Done
 - Files merged, visible on GitHub repo landing page
-- `CODE_OF_CONDUCT.md` has a real reporting contact, not `[INSERT EMAIL]`
+- `CODE_OF_CONDUCT.md` has a real reporting contact, not `[INSERT EMAIL]` *(deferred to PRC-002a - see below)*
+
+---
+
+## PRC-002a: CODE_OF_CONDUCT.md and public reporting contact
+
+**Epic:** E1. Repository & Build Foundation
+**Type:** docs
+**Priority:** P2 (pre-public-release gate; does not block MVP development)
+**Effort:** S (1-2h)
+**Sprint:** pre-1.0 release
+**Dependencies:** PRC-002
+
+### Context
+PRC-002 intentionally deferred two items: the full `CODE_OF_CONDUCT.md` body and the real reporting-contact address. Both are required for a public open-source project but not for internal / solo MVP development. Once an email address is committed to a public repo, git history retains it forever, so the decision is parked until a public contact channel (project alias, forwarding address, or GitHub's private reporting flow) is chosen.
+
+### Acceptance Criteria
+- [ ] `CODE_OF_CONDUCT.md` at repo root, Contributor Covenant v2.1 verbatim
+- [ ] Real reporting contact filled into the enforcement section - no placeholder
+- [ ] `README.md` links to `CODE_OF_CONDUCT.md` from a "Community" / "Code of Conduct" section
+- [ ] PRC-002 DoD's open item closed (it referred explicitly to this file)
+- [ ] `Dev/CHANGELOG.md` entry under the appropriate pre-release version
+
+### Technical Notes
+- Contributor Covenant v2.1 source: <https://www.contributor-covenant.org/version/2/1/code_of_conduct/>
+- Prefer a project alias (e.g., `conduct@<domain>`) over a personal email; aliases can be rotated, committed emails cannot be retracted from git history
+- Evaluate GitHub's community / private reporting flows as a substitute before committing to an email
+- Update `DEPENDENCIES.md` §8 (Release Readiness Checklist) if this gate is tracked there
+
+### Testing Requirements
+- Manual: confirm the chosen contact channel actually receives mail / routes to a human
+
+### Out of Scope
+- `SECURITY.md` (security vulnerability reporting - separate ticket if/when needed)
+- Governance document
+
+### Definition of Done
+- File merged, README links to it, real contact in place and functional
+- No `[INSERT EMAIL]` or equivalent placeholder anywhere in the repo
 
 ---
 

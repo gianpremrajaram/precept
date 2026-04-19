@@ -79,7 +79,7 @@ At runtime, the system intercepts the handoff boundary, scores information prese
 | Real-time | Calibrated embedding-similarity proxy | Production enforcement | <1ms |
 | Offline | KSG mutual information estimator | Measurement, calibration | Minutes |
 
-The KSG (Kraskov-Stogbauer-Grassberger) estimator provides rigorous mutual information measurement but scales poorly with dimensionality. The embedding proxy is calibrated against KSG benchmarks and deployed for runtime enforcement. 
+The KSG (Kraskov-Stogbauer-Grassberger) estimator provides rigorous mutual information measurement but scales poorly with dimensionality. The embedding proxy is calibrated against KSG benchmarks and deployed for runtime enforcement.
 
 ### 2. Coordination Pattern Observatory
 
@@ -112,7 +112,7 @@ Five systematically varied information conditions, applied to the same multi-age
 
 Environments: DeepMind's Melting Pot (sequential social dilemmas) and the MARL-BC economic simulation framework (Cobb-Douglas production economies with heterogeneous agents).
 
-Keep agents, tasks, learning algorithms constant, isolate information that crosses the boundary. 
+Keep agents, tasks, learning algorithms constant, isolate information that crosses the boundary.
 Hypothesis: **information structure at agent boundaries shapes collective outcomes more than individual agent capability.**
 
 ### 4. Collective Decision Interface
