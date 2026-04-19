@@ -1,5 +1,7 @@
 # Information Contracts for Multi-Agent Reasoning Systems
 
+[![CI](https://github.com/gianpremrajaram/precept/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/gianpremrajaram/precept/actions/workflows/ci.yml)
+
 An open-source framework for measuring, enforcing, and studying information integrity at the boundaries between reasoning components in multi-agent AI systems.
 
 ## The Problem
