@@ -100,6 +100,13 @@ Use OOP when: (1) a component holds injected dependencies or mutable state (`Eva
 - Classes: PascalCase. Functions/variables: snake_case. Constants: UPPER_SNAKE_CASE. Private helpers: `_leading_underscore`.
 - Module names: lowercase, short, no underscores unless needed (`schema.py` not `contract_schema.py` - the directory gives context).
 
+### Implementation discipline
+
+- **Surface assumptions before coding.** If a request admits multiple reasonable interpretations, name them and ask - do not pick silently. Ambiguity hidden upfront becomes rework at review.
+- **Minimum code that satisfies the Acceptance Criteria.** No speculative abstractions, no configurability nobody asked for, no error paths for states that cannot occur. If a 200-line diff could be 50, rewrite it.
+- **Surgical edits.** When modifying existing code, touch only what the change requires. Do not reformat adjacent code, do not refactor working code, do not delete pre-existing dead code (flag it in the PR description instead). Every changed line should trace to the ticket.
+- **Orphan cleanup is yours; pre-existing cruft is not.** Remove imports, variables, and symbols that YOUR change leaves unused. Leave unrelated dead code alone unless the ticket scope covers it.
+
 ---
 
 ## Toolchain
