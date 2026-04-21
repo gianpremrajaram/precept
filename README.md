@@ -52,6 +52,8 @@ Four independent, composable modules:
                     └─────────────────────────────────────────────┘
 ```
 
+Architectural decisions are recorded under [`docs/adr/`](docs/adr/); see [ADR 0001 — Contract Intermediate Representation](docs/adr/0001-contract-ir.md) for how the YAML and decorator frontends converge on a single Pydantic IR consumed by the evaluator.
+
 ### 1. Information Contract Layer
 
 The core design principle: **govern agent input vs output** If information has been silently degraded before an agent receives it, no amount of output evaluation can recover what was lost.

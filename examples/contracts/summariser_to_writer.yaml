@@ -1,0 +1,13 @@
+# Precept handoff contract: summariser -> writer.
+# Warn-only: violations emit events but do not block the pipeline. `mode`
+# is omitted deliberately to exercise the default value from the schema.
+name: summariser_to_writer
+version: "0.1"
+description: "Contract for summariser handing off to writer"
+fields:
+  required_fields:
+    - summary
+    - key_entities
+  preserved_entities:
+    - primary_source
+  min_fidelity: 0.70

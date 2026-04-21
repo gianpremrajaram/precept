@@ -476,6 +476,33 @@ The `HandoffContract` Pydantic model is the IR that both frontends (YAML, decora
 
 ---
 
+## PRC-006a: JSON Schema export helper for HandoffContract
+
+**Epic:** E2. Contract Specification Layer
+**Type:** feat
+**Priority:** P2
+**Effort:** S (1-2h)
+**Sprint:** post-MVP
+**Dependencies:** PRC-006
+
+### Context
+`HandoffContract.model_json_schema()` is one Pydantic call away. Exposing it via a tiny helper (e.g. `precept.contract.schema.json_schema()`) would enable editor tooling (VS Code YAML LSP, IntelliJ JSON Schema integration) to validate contract YAML in-place and power the observatory's "contract source" panel. Deliberately deferred from PRC-006 to keep the MVP schema surface minimal.
+
+### Acceptance Criteria
+- [ ] `precept.contract.schema.json_schema()` returns a JSON Schema dict for `HandoffContract`.
+- [ ] Helper available at `precept.json_schema()` once PRC-026 wires the public API.
+- [ ] Unit test verifies the returned schema round-trips through `json.dumps` cleanly.
+- [ ] Documented in `docs/contract_reference.md` (PRC-025) once that ticket lands.
+
+### Out of Scope
+- A generated `contract.schema.json` file shipped in the repo (emit-on-demand only).
+- Publishing to JSON-Schema-store registries.
+
+### Definition of Done
+- Helper exported, test passes, referenced in the eventual contract reference doc.
+
+---
+
 ## PRC-007: YAML contract loader
 
 **Epic:** E2. Contract Specification Layer
@@ -534,6 +561,59 @@ YAML is the artefact-bearing contract format. Compliance owners, reviewers, and 
 
 ### Definition of Done
 - All tests pass, examples are loadable, error messages reviewed for actionability
+
+---
+
+## PRC-007a: YAML loader error enrichment (line/column on schema violations)
+
+**Epic:** E2. Contract Specification Layer
+**Type:** feat
+**Priority:** P2
+**Effort:** S-M (2-4h)
+**Sprint:** post-MVP
+**Dependencies:** PRC-007
+
+### Context
+PRC-007 ships with actionable errors for YAML *syntax* failures (line/column carried via `ContractValidationIssue.yaml_mark`). Errors originating from Pydantic schema validation (e.g. "min_fidelity must be between 0.0 and 1.0") carry only a field path, not a YAML position. Users debugging larger contract files benefit from "got 1.5 (line 7)" over "field fields.min_fidelity: input should be less than or equal to 1".
+
+Implementation requires a position-tracking YAML loader (custom `yaml.SafeLoader` subclass that annotates each node with `(line, column)`) so the loader can map Pydantic error `loc` tuples back to their source positions.
+
+### Acceptance Criteria
+- [ ] A position-tracking loader annotates scalar/mapping/sequence nodes with line/column.
+- [ ] On `pydantic.ValidationError`, each resulting `ContractValidationIssue` carries a `yaml_mark` pointing at the offending value's position (not the parent mapping).
+- [ ] Unit tests cover: out-of-range `min_fidelity`, unknown field, bad `mode`, forbidden-drops intersection — each asserting the `yaml_mark` matches the line the bad value appears on.
+- [ ] No regression on v0 acceptance criteria (syntax errors still report line/column as today).
+
+### Out of Scope
+- Column-perfect positions for values inside inline flow sequences (line-only is acceptable).
+- Round-trip preservation of comments (`ruamel.yaml` territory).
+
+### Definition of Done
+- Enriched errors verified on the two example contracts via a malformed-copy fixture per error type.
+
+---
+
+## PRC-007b: README for examples/contracts
+
+**Epic:** E2. Contract Specification Layer
+**Type:** docs
+**Priority:** P2
+**Effort:** XS (<1h)
+**Sprint:** post-MVP
+**Dependencies:** PRC-007
+
+### Context
+`examples/contracts/` currently holds two YAML fixtures. As PRC-017/018/019 land and more fixtures accumulate, a short README next to the files explaining *what each fixture demonstrates* keeps the demo story self-documenting and helps new contributors pick the right fixture for a new scenario.
+
+### Acceptance Criteria
+- [ ] `examples/contracts/README.md` with a one-paragraph header plus a table of fixture → purpose → associated scenario.
+- [ ] Updated each time a new fixture lands, per PRC-017/018 DoD.
+
+### Out of Scope
+- Mechanism-level documentation of the YAML schema (covered by PRC-025 contract reference).
+
+### Definition of Done
+- README merged, linked from the main README's examples section once PRC-024 lands.
 
 ---
 

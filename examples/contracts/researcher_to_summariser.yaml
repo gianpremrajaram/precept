@@ -1,0 +1,17 @@
+# Precept handoff contract: researcher -> summariser.
+# Blocking mode: the summariser must not receive a payload that violates
+# this contract.
+name: researcher_to_summariser
+version: "0.1"
+mode: block
+description: "Contract for research agent handing off to summariser"
+fields:
+  required_fields:
+    - hypothesis
+    - citations
+  preserved_entities:
+    - primary_source
+    - author
+  min_fidelity: 0.75
+  forbidden_drops:
+    - uncertainty_bounds
