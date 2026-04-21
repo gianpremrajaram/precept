@@ -112,7 +112,7 @@ docs: document fail-open behaviour in evaluate_handoff (PRC-024)
 
 ## Scope discipline
 
-If you spot an unrelated issue mid-ticket, capture it as a follow-up — don't roll it into the current PR. For architectural questions on P0 items (see `DEPENDENCIES.md` §1), open a draft PR with the question pinned at the top, or raise an issue. Don't guess.
+If you spot an unrelated issue mid-ticket, capture it as a follow-up — don't roll it into the current PR. For architectural questions on P0 items (see `DEPENDENCIES.md` §1), open a draft PR with the question pinned at the top, or raise an issue.
 
 ---
 
