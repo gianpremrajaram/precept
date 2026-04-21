@@ -4,7 +4,7 @@ Thanks for your interest. Precept is under active early-stage development; drive
 
 > Precept is a Python SDK that lets developers declare **handoff integrity contracts** for multi-agent pipelines and emit violation events via OpenTelemetry GenAI semantic conventions. The v0 scorer is an embedding-similarity proxy; the calibrated scorer (an MSc dissertation deliverable) lands in Phase 2.
 
-For deeper architecture, scope, and rationale, see [`CLAUDE.md`](CLAUDE.md) (operating manual), [`ISSUES.md`](ISSUES.md) (canonical backlog), and [`DEPENDENCIES.md`](DEPENDENCIES.md) (critical path and risk register).
+For deeper architecture, scope, and rationale, see [`CLAUDE.md`](CLAUDE.md) (operating manual), [`ISSUES.md`](ISSUES.md) (canonical backlog), [`DEPENDENCIES.md`](DEPENDENCIES.md) (critical path and risk register), and [`docs/adr/`](docs/adr/) (architecture decision records — start with [ADR 0001](docs/adr/0001-contract-ir.md)).
 
 ---
 
@@ -17,11 +17,14 @@ precept/
 ├── CLAUDE.md                  # operating manual
 ├── ISSUES.md                  # canonical backlog (PRC-XXX tickets)
 ├── DEPENDENCIES.md            # critical path + risk register
+├── docs/adr/                  # architecture decision records
+├── examples/contracts/        # example contract YAML files
 ├── .github/workflows/ci.yml
 ├── .pre-commit-config.yaml
 ├── LICENSE
 └── Dev/
     ├── pyproject.toml
+    ├── requirements-dev.lock  # pip-compile'd lockfile for reproducible dev installs
     ├── CHANGELOG.md
     ├── src/precept/
     └── tests/
