@@ -191,7 +191,7 @@ If `evaluate_handoff` is called with a contract name not in the registry, log WA
 8. **Never raise generic `Exception`** from public API - always use Precept-specific subclasses.
 9. **Never mark a ticket Done without verifying every Definition-of-Done item.** "Almost done" is not done.
 10. **Never bypass pre-commit or CI** with `--no-verify`, `[skip ci]`, or equivalent. If a hook fails, fix the underlying issue.
-11. **Never push directly to `main`.** Branch protection will reject it; the workaround is always a PR.
+11. **Never push to any remote and never open pull requests.** Commit locally on the feature branch and stop. All pushes and PR creation are reserved for the human maintainer; offering to push is also out of scope.
 12. **Never claim the proxy scorer measures mutual information.** It is a cosine-similarity proxy. The README, docstrings, and marketing must say so honestly.
 13. **Never rename a public API entry from `__all__` between patch versions.** Semantic versioning applies from v0.1.0 onward.
 
