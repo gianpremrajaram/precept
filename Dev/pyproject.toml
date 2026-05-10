@@ -25,6 +25,8 @@ classifiers = [
 dependencies = [
     "pydantic>=2.5,<3",
     "pyyaml>=6.0,<7",
+    "sentence-transformers>=2.2,<4",
+    "numpy>=1.24,<3",
 ]
 
 [project.optional-dependencies]
@@ -84,6 +86,10 @@ files = ["src/precept"]
 warn_unused_configs = true
 warn_redundant_casts = true
 warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = ["sentence_transformers.*", "torch.*"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
