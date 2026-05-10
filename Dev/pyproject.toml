@@ -93,6 +93,11 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Make Hypothesis strategies in tests/unit/contract/strategies.py importable
+# from any test module (the file itself flags PRC-008 and PRC-012 as reuse
+# targets). Keep the entry narrow; prefer per-feature shared modules over a
+# top-level test helpers package.
+pythonpath = ["tests/unit/contract"]
 addopts = [
     "--strict-markers",
     "--strict-config",
