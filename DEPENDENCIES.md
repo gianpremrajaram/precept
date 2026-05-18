@@ -528,6 +528,7 @@ Known debt incurred by v0 simplifications, explicitly tracked. Each item has a t
 | Contracted-field extractor does not recurse into nested objects | PRC-016 | Users need dotted-path field access (e.g., `metadata.source`) → extend extractor with path-expression support |
 | No concurrency stress tests on registry | PRC-009 | Real-world report of registry corruption under worker-pool contention → add stress test and verify lock behaviour |
 | OTel GenAI schema pinned to experimental version | PRC-020 | Conventions mark stable → migrate and lock to stable version |
+| Impact-summary agent names parsed from the `<source>_to_<target>` contract-name convention (first `_to_` is the separator) | PRC-015 | A user contract whose *source* agent name embeds `_to_` mis-attributes the split → carry explicit source/target agent fields on `HandoffContract` or `ViolationEvent` and feed them to `render_impact_text` |
 
 Review this ledger at every minor version bump.
 
