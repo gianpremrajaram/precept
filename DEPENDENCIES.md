@@ -520,6 +520,7 @@ Known debt incurred by v0 simplifications, explicitly tracked. Each item has a t
 | Observatory is static, renders one trace | PRC-022 | Users submit traces for review → multi-trace mode or hosted instance |
 | Impact templates are hand-written Python dict | PRC-015 | Contract count exceeds hand-editable scale (~50) OR non-engineers need to edit impact copy → YAML override layer |
 | No checkpointer integration (LangGraph resumability) | PRC-014 | User reports blocked handoffs cannot be resumed after remediation |
+| Per-call single-worker `ThreadPoolExecutor` in `evaluate_handoff`'s in-loop branch (no shared/bounded pool; one worker thread created and joined per call) | PRC-014 (`eval_hook._evaluate`) | Real-world report of thread-churn or throughput loss under burst-concurrent async handoffs → replace with a bounded module-level executor (deliberate `max_workers` + shutdown lifecycle) or the Phase 2 native async path (PRC-011b) |
 | Embedding proxy model hardcoded to `all-MiniLM-L6-v2` | PRC-011 | Multilingual support requested, or English-bias complaints |
 | No caching of embeddings across evaluations | PRC-011 | Performance regression reports on repeat-payload evaluations |
 | No scorer benchmarking harness | - | Needed at v0.2 for comparing proxy to calibrated (PRC-036) |
