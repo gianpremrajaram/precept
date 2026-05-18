@@ -1094,6 +1094,33 @@ When a contract blocks a handoff, the supervisor needs a human-legible impact de
 
 ---
 
+## PRC-015a: Score-gate impact text names the failing field(s)
+
+**Epic:** E4. LangGraph Integration
+**Type:** feat
+**Priority:** P2
+**Effort:** S (1-2h)
+**Sprint:** post-MVP
+**Dependencies:** PRC-015
+
+### Context
+PRC-015's `populate_impact_summary` handles a block caused purely by a sub-threshold field score (every rule passes but `ViolationEvent.passed` is `False`) by labelling it `minimum_fidelity` and rendering `DEFAULT_IMPACT_FALLBACK` verbatim - the AC-mandated behaviour, since the AC fixes the fallback constant and format string. The side effect is that a production score-gate block produces a generic message with zero signal about *which* contracted field scored low, even though `ViolationEvent.score_result.field_scores` carries per-field `passed` flags. Deliberately deferred from PRC-015 to avoid deviating from that ticket's verbatim AC.
+
+### Acceptance Criteria
+- [ ] When the block is a pure score-gate failure (no failing `RuleResult`), the rendered impact text appends the failing field name(s) from `score_result.field_scores` (those with `passed is False`), e.g. `Downstream impact: <fallback> (low-fidelity fields: citations, hypothesis).`
+- [ ] `DEFAULT_IMPACT_FALLBACK` remains the base text; the field list is an additive suffix only (no change to the rule-keyed template path or the existing format prefix).
+- [ ] `render_impact_text` gains an optional `low_fidelity_fields: list[str] | None = None` parameter so the PRC-022 observatory can render the same enriched text without constructing an error.
+- [ ] Unit tests: single failing field, multiple failing fields (order = `field_scores` order), no failing field (suffix omitted), rule-keyed path unchanged.
+
+### Out of Scope
+- Per-field score *values* in the text (the observatory renders the numeric detail from `score_result`; the impact line stays prose).
+- Changing `DEFAULT_IMPACT_FALLBACK` itself or the rule-keyed template entries.
+
+### Definition of Done
+- Score-gate blocks name the offending field(s); rule-keyed path byte-for-byte unchanged; tests pass; `render_impact_text` signature extension documented.
+
+---
+
 ## PRC-016: Contracted-field extractor (LangGraph state → HandoffPayload)
 
 **Epic:** E4. LangGraph Integration
@@ -1417,6 +1444,7 @@ The observatory is the VC-legible visual artefact. A single HTML file that loads
 - The temptation is to reach for React, Vue, D3. Resist. This is a single-page renderer of a fixed-shape JSON file. Vanilla JS + CSS keeps the file under 50KB and trivially auditable.
 - Accessibility: include ARIA labels on interactive elements; semantic HTML (nav, main, section); reasonable colour contrast. Accelerator reviewers using accessibility tools should not hit obvious failures.
 - Defer until needed: time-series view, multi-trace comparison, search. For v0, one trace, one view.
+- Impact copy provenance (PRC-015 coordination): block-mode violations carry an `impact_summary` populated on `HandoffBlockedError`; warn-mode violations carry no error, so their impact line must be produced by `render_impact_text` (PRC-015). The static page runs no Python - the trace-generation step (PRC-019) bakes the rendered string into the JSON the observatory loads. Import path is `from precept.integrations.langgraph.impact import render_impact_text`: it is in that module's `__all__` but, per the PRC-026-defers-public-surface convention, is *not* re-exported from `precept.integrations.langgraph` or the top level yet. PRC-026 owner decides whether it joins the public API; do not assume `from precept import render_impact_text` works.
 
 ### Testing Requirements
 - Manual cross-browser: Chrome, Firefox, Safari (latest stable)
