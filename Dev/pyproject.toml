@@ -36,14 +36,12 @@ test = [
     "pytest>=8,<9",
     "pytest-cov>=5,<6",
     "hypothesis>=6,<7",
-    "langgraph-supervisor>=0.0.5,<0.1",
 ]
 docs = []
 dev = [
     "pytest>=8,<9",
     "pytest-cov>=5,<6",
     "hypothesis>=6,<7",
-    "langgraph-supervisor>=0.0.5,<0.1",
     "ruff>=0.5,<1",
     "mypy>=1.10,<2",
     "bandit>=1.7,<2",
@@ -99,8 +97,7 @@ ignore_missing_imports = true
 # its surface as untyped: insulates strict type-checking from API churn and
 # keeps mypy green where langgraph is not installed. follow_imports=skip
 # makes the treatment uniform whether or not the package is installed in the
-# checking environment. (langgraph-supervisor is test-only and never
-# imported from src/precept, so it needs no override here.)
+# checking environment.
 [[tool.mypy.overrides]]
 module = ["langgraph.*", "langchain_core.*"]
 ignore_missing_imports = true

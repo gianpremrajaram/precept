@@ -1,23 +1,33 @@
 # SPDX-License-Identifier: MIT
 """Integration tests for the PRC-014 LangGraph paths.
 
-Exercises both surfaces against the *real* pinned ``langgraph`` (and
-``langgraph_supervisor`` for the supervisor case). This file is the
-CI-gated drift detector called for in DEPENDENCIES.md section 4.1
-(mitigations 3 and 5): it runs on every PR against ``langgraph>=0.5,<0.7``
-and a pinned ``langgraph-supervisor``; an upstream API change surfaces
-here. ``importorskip`` keeps it collectable (skipped, not errored) in
-environments without the libraries -- e.g. the maintainer's local
+Exercises both PRC-014 surfaces against the *real* pinned ``langgraph``.
+This file is the CI-gated drift detector called for in DEPENDENCIES.md
+section 4.1 (mitigations 3-5): it runs on every PR against
+``langgraph>=0.5,<0.7`` so an upstream API change surfaces here.
+``importorskip`` keeps it collectable (skipped, not errored) in
+environments without ``langgraph`` -- e.g. the maintainer's local
 interpreter outside the 3.10-3.12 matrix.
 
-No real LLM is used: the supervisor path drives a scripted
-``GenericFakeChatModel`` so the tier stays offline and CI-safe (real-LLM
+No real LLM and no network: the supervisor is a scripted plain node
+emitting the tool call, so the tier stays offline and CI-safe (real-LLM
 runs are the manual e2e tier per DEPENDENCIES.md section 7).
+
+The tool wrapper is exercised in the manual tool-calling-supervisor
+topology it is *designed* for (the ``langgraph-supervisor-py#205``
+workaround), NOT via ``langgraph_supervisor.create_supervisor``: that
+helper only adopts a custom handoff tool carrying its private
+``"__handoff_destination"`` metadata and otherwise silently
+auto-generates its own uncontracted handoff. Precept deliberately does
+not couple runtime code to that partially-deprecated private marker
+(DEPENDENCIES.md 3.1 / 4.1 / 10); see the tool-calling-supervisor
+test's docstring for the full rationale.
 
 LangGraph API surface exercised (documented so drift is attributable):
 ``langgraph.graph.StateGraph`` / ``START`` / ``END``,
-``langgraph.types.Command``, ``langgraph.prebuilt.create_react_agent``,
-``langgraph_supervisor.create_supervisor``.
+``langgraph.types.Command`` (incl. ``graph=Command.PARENT``),
+``langgraph.prebuilt.ToolNode`` with ``InjectedState`` /
+``InjectedToolCallId`` injection.
 """
 
 from __future__ import annotations
@@ -183,18 +193,37 @@ def test_async_node_evaluate_handoff_no_loop_warnings() -> None:
     assert not [w for w in caught if issubclass(w.category, RuntimeWarning)]
 
 
-# --- AC: real langgraph_supervisor + create_precept_handoff_tool -----------
+# --- AC: create_precept_handoff_tool in the manual tool-calling-supervisor
+#         topology it is designed for (langgraph-supervisor-py#205) ----------
 
 
-def test_supervisor_path_evaluates_and_emits_event() -> None:
-    """Real ``langgraph_supervisor`` driving the contract-checking handoff
-    tool via a scripted fake model. CI-gated drift detector for the
-    partially-deprecated supervisor helper (DEPENDENCIES.md 4.1)."""
-    pytest.importorskip("langgraph_supervisor")
-    from langchain_core.language_models import GenericFakeChatModel
+def test_tool_calling_supervisor_path_evaluates_and_emits_event() -> None:
+    """``create_precept_handoff_tool`` driven end to end through the real
+    pinned ``langgraph`` ``ToolNode`` / ``Command(graph=PARENT)`` /
+    ``InjectedState`` machinery, in the manual tool-calling-supervisor
+    topology the tool is built for (the documented
+    ``langchain-ai/langgraph-supervisor-py#205`` workaround): a
+    supervisor subgraph whose ``ToolNode`` runs the handoff tool, which
+    hands off across the subgraph boundary to a parent-graph agent node.
+
+    Deliberately NOT ``langgraph_supervisor.create_supervisor``.
+    ``create_supervisor`` adopts a *custom* handoff tool only if it
+    carries ``langgraph_supervisor``'s private
+    ``METADATA_KEY_HANDOFF_DESTINATION == "__handoff_destination"``
+    metadata; an unmarked tool is silently shadowed by an
+    auto-generated, *uncontracted* handoff. Setting that marker in
+    runtime source would couple Precept to a partially-deprecated
+    library's private constant, which CLAUDE.md, DEPENDENCIES.md 3.1
+    (only ``langgraph`` + ``langchain-core`` are runtime deps), and the
+    ``handoff_tool`` module docstring all forbid. The supported surfaces
+    are therefore this manual pattern and the pure ``evaluate_handoff``
+    hook; the ``create_supervisor`` interop boundary is recorded in
+    DEPENDENCIES.md 4.1 and the section 10 debt ledger. This remains the
+    CI-gated drift detector for the ``langgraph`` tool API the wrapper
+    truly depends on.
+    """
     from langchain_core.messages import AIMessage
-    from langgraph.prebuilt import create_react_agent
-    from langgraph_supervisor import create_supervisor
+    from langgraph.prebuilt import ToolNode
 
     from precept.integrations.langgraph import create_precept_handoff_tool
 
@@ -202,15 +231,15 @@ def test_supervisor_path_evaluates_and_emits_event() -> None:
     ev = Evaluator(_StubScorer(score=1.0), rec)
     reg = _registry(mode="warn")
 
-    worker_model = GenericFakeChatModel(messages=iter([AIMessage(content="done")]))
-    worker = create_react_agent(worker_model, tools=[], name="summariser")
-
     handoff = create_precept_handoff_tool(
         "summariser", "researcher_to_summariser", registry=reg, evaluator=ev
     )
-    supervisor_model = GenericFakeChatModel(
-        messages=iter(
-            [
+
+    def supervisor_llm(state: _State) -> dict[str, Any]:
+        # Scripted supervisor "model": a plain node that requests the
+        # handoff tool. Offline by construction (DEPENDENCIES.md 7).
+        return {
+            "messages": [
                 AIMessage(
                     content="",
                     tool_calls=[
@@ -221,14 +250,28 @@ def test_supervisor_path_evaluates_and_emits_event() -> None:
                             "type": "tool_call",
                         }
                     ],
-                ),
-                AIMessage(content="finished"),
+                )
             ]
-        )
-    )
-    app = create_supervisor([worker], model=supervisor_model, tools=[handoff]).compile()
+        }
 
-    app.invoke({"messages": [("user", "summarise this")]})
+    supervisor_sub: StateGraph = StateGraph(_State)
+    supervisor_sub.add_node("llm", supervisor_llm)
+    supervisor_sub.add_node("tools", ToolNode([handoff]))
+    supervisor_sub.add_edge(START, "llm")
+    supervisor_sub.add_edge("llm", "tools")
+    supervisor_sub.add_edge("tools", END)
+    supervisor = supervisor_sub.compile()
 
-    assert len(rec.received) >= 1
+    parent: StateGraph = StateGraph(_State)
+    parent.add_node("supervisor", supervisor, destinations=("summariser", END))
+    parent.add_node("summariser", lambda s: {"body": s["body"]})
+    parent.add_edge(START, "supervisor")
+    parent.add_edge("summariser", END)
+    app = parent.compile()
+
+    result = app.invoke({"body": "hello", "messages": []})
+
+    assert result["body"] == "hello"
+    assert len(rec.received) == 1
+    assert rec.received[0].passed is True
     assert rec.received[0].contract_name == "researcher_to_summariser"
