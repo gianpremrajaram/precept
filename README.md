@@ -83,6 +83,36 @@ At runtime, the system intercepts the handoff boundary, scores information prese
 
 The KSG (Kraskov-Stogbauer-Grassberger) estimator provides rigorous mutual information measurement but scales poorly with dimensionality. The embedding proxy is calibrated against KSG benchmarks and deployed for runtime enforcement.
 
+#### Enforcing a contract in LangGraph
+
+Two integration surfaces ship for LangGraph; pick whichever matches your supervisor pattern (the v0 import path is the integration package — the top-level `precept` namespace is finalised later):
+
+```python
+from precept.contract.registry import default_registry
+from precept.contract.yaml_loader import load_contract
+from precept.integrations.langgraph import create_precept_handoff_tool, evaluate_handoff
+
+default_registry.register(load_contract("contracts/researcher_to_summariser.yaml"))
+
+# Pattern A — pure hook, for the Command(goto=...) pattern.
+# Framework-API-independent: imports no langgraph symbol.
+from langgraph.types import Command
+
+def supervisor(state):
+    evaluate_handoff(state, state, "researcher_to_summariser")
+    return Command(goto="summariser")  # raises on a block-mode violation
+
+# Pattern B — drop-in handoff tool for tool-calling supervisors.
+# Migration from an uncontracted supervisor: change the import, add contract_name.
+handoff = create_precept_handoff_tool("summariser", "researcher_to_summariser")
+```
+
+**Fail-open (deliberate, loud).** If the named contract is not registered, `evaluate_handoff` logs a `WARNING`, returns a synthetic *pass* event, and does **not** block. Observability tooling that crashes the pipeline is worse than observability that misses a check.
+
+**Block semantics.** A `mode: block` contract that fails raises `HandoffBlockedError`. In Pattern A it raises inside your node; in Pattern B LangGraph's `ToolNode` surfaces it to the supervisor LLM as an error `ToolMessage` so it can retry or reroute. `warn` mode emits the event and never raises.
+
+**Async safety.** Called from inside an async node, `evaluate_handoff` detects the running loop and offloads the CPU-bound scoring to a worker thread. The fully non-blocking idiom from a coroutine is `await asyncio.to_thread(evaluate_handoff, ...)`.
+
 ### 2. Coordination Pattern Observatory
 
 Information-theoretic monitoring that makes multi-agent coordination dynamics visible:

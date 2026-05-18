@@ -1,17 +1,45 @@
 # SPDX-License-Identifier: MIT
 """LangGraph integration package.
 
-PRC-016 lands ``extractor.extract_payload`` (LangGraph state ->
-``HandoffPayload``, contracted fields only). PRC-014 will add the pure
-``evaluate_handoff`` hook and the ``create_precept_handoff_tool`` wrapper
-in sibling modules without touching the extractor.
+Public names (PRC-014 AC explicitly requires both to be importable from
+this package -- this supersedes the earlier "intentionally empty
+``__all__``" scaffold note for *these two names only*; PRC-026 still owns
+the top-level ``precept`` namespace):
 
-``__all__`` is intentionally empty at this stage. The public surface is
-defined by PRC-026; until then, callers import concrete names directly
-from the relevant submodule, mirroring the ``precept.evaluator`` and
-``precept.exporters`` scaffold convention.
+* ``evaluate_handoff`` -- the pure, framework-API-independent hook
+  (:mod:`precept.integrations.langgraph.eval_hook`). Imports no
+  ``langgraph`` symbol.
+* ``create_precept_handoff_tool`` -- the LangGraph tool wrapper
+  (:mod:`precept.integrations.langgraph.handoff_tool`). Importing it
+  pulls in ``langgraph`` / ``langchain-core`` (hard runtime deps).
+
+Both are resolved lazily via :pep:`562` ``__getattr__`` so that
+``from precept.integrations.langgraph import evaluate_handoff`` never
+imports ``langgraph`` -- the pure hook stays usable as the
+framework-independent fallback (CLAUDE.md -> "Two integration paths for
+LangGraph") even in an environment where the tool API is unavailable or
+broken. ``extract_payload`` (PRC-016) remains submodule-only by the
+PRC-026 surface convention.
 """
 
 from __future__ import annotations
 
-__all__: list[str] = []
+from typing import TYPE_CHECKING, Any
+
+__all__ = ["create_precept_handoff_tool", "evaluate_handoff"]
+
+if TYPE_CHECKING:
+    from precept.integrations.langgraph.eval_hook import evaluate_handoff
+    from precept.integrations.langgraph.handoff_tool import create_precept_handoff_tool
+
+
+def __getattr__(name: str) -> Any:
+    if name == "evaluate_handoff":
+        from precept.integrations.langgraph.eval_hook import evaluate_handoff
+
+        return evaluate_handoff
+    if name == "create_precept_handoff_tool":
+        from precept.integrations.langgraph.handoff_tool import create_precept_handoff_tool
+
+        return create_precept_handoff_tool
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

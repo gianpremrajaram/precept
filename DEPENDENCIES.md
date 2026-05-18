@@ -196,7 +196,7 @@ Risks specific to external framework integrations. These need active monitoring 
 
 ### 4.1 LangGraph API instability (HIGH)
 
-**Context:** `langgraph-supervisor` (the library PRC-014's tool-wrapper path builds against) carried an open issue (#205) where supervisor handoffs didn't cleanly pass state. LangChain's guidance post-2025 is to use manual supervisor patterns via tools rather than the `langgraph-supervisor` helper. The `Command(goto=...)` pattern is increasingly preferred. `langgraph` itself is a pre-1.0 library with ongoing API churn.
+**Context:** `langgraph-supervisor` carried an open issue (#205) where the supervisor helper didn't cleanly pass state to sub-agent handoffs. LangChain's guidance post-2025 is to use manual supervisor patterns via tools rather than the `langgraph-supervisor` helper, and PRC-014's tool wrapper does exactly that — it implements the manual `Command(goto=..., graph=PARENT)` + `InjectedState` pattern on core `langgraph`, *not* the helper. The `Command(goto=...)` pattern is increasingly preferred. `langgraph` itself is a pre-1.0 library with ongoing API churn.
 
 **Impact:** Breakage in PRC-014's tool wrapper on any `langgraph` minor version bump.
 
@@ -206,6 +206,7 @@ Risks specific to external framework integrations. These need active monitoring 
 3. Add a CI job that exercises both integration paths against the pinned version on every PR.
 4. Document in PRC-014's tests: which LangGraph API surface each path depends on, so drift is detectable.
 5. On LangGraph minor-version releases: run the integration test suite against the new version on a branch; only bump the upper bound after green.
+6. **`langgraph_supervisor.create_supervisor` is not a supported injection target** (PRC-014 CI drift finding, Rev 2 follow-up). The pinned `langgraph_supervisor` adopts a *custom* handoff tool only if it carries that library's private `METADATA_KEY_HANDOFF_DESTINATION == "__handoff_destination"` marker; an unmarked tool is silently shadowed by an auto-generated, *uncontracted* handoff (contract enforcement disappears with no error). Setting that private marker in runtime source would couple Precept to a partially-deprecated library's internals — forbidden by section 3.1 and CLAUDE.md. Resolution: `create_precept_handoff_tool` is supported only in the manual tool-calling-supervisor topology and via the pure `evaluate_handoff` hook; `langgraph-supervisor` is dropped as a test dependency (it had become unused after the integration drift detector was rewritten to exercise core `langgraph` `ToolNode` / `Command(graph=PARENT)` / `InjectedState` directly). Tracked in the section 10 ledger.
 
 **Owner:** PRC-014 owner, permanent.
 
@@ -520,6 +521,8 @@ Known debt incurred by v0 simplifications, explicitly tracked. Each item has a t
 | Observatory is static, renders one trace | PRC-022 | Users submit traces for review → multi-trace mode or hosted instance |
 | Impact templates are hand-written Python dict | PRC-015 | Contract count exceeds hand-editable scale (~50) OR non-engineers need to edit impact copy → YAML override layer |
 | No checkpointer integration (LangGraph resumability) | PRC-014 | User reports blocked handoffs cannot be resumed after remediation |
+| Per-call single-worker `ThreadPoolExecutor` in `evaluate_handoff`'s in-loop branch (no shared/bounded pool; one worker thread created and joined per call) | PRC-014 (`eval_hook._evaluate`) | Real-world report of thread-churn or throughput loss under burst-concurrent async handoffs → replace with a bounded module-level executor (deliberate `max_workers` + shutdown lifecycle) or the Phase 2 native async path (PRC-011b) |
+| `create_precept_handoff_tool` is not adopted by `langgraph_supervisor.create_supervisor` (that helper requires its private `"__handoff_destination"` marker; an unmarked tool is silently replaced by an uncontracted auto-handoff). Deliberately not coupled — section 4.1 finding | PRC-014 (`create_precept_handoff_tool`) | A user needs `create_supervisor` interop, OR `langgraph_supervisor` (or core `langgraph`) ships a *public* handoff-registration API → add a supervisor-specific adapter that sets the then-public marker, kept out of the framework-independent core |
 | Embedding proxy model hardcoded to `all-MiniLM-L6-v2` | PRC-011 | Multilingual support requested, or English-bias complaints |
 | No caching of embeddings across evaluations | PRC-011 | Performance regression reports on repeat-payload evaluations |
 | No scorer benchmarking harness | - | Needed at v0.2 for comparing proxy to calibrated (PRC-036) |

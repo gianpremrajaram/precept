@@ -6,6 +6,8 @@
 #
 annotated-types==0.7.0
     # via pydantic
+anyio==4.13.0
+    # via httpx
 bandit==1.9.4
     # via precept (pyproject.toml)
 boolean-py==5.0
@@ -17,7 +19,10 @@ cachecontrol[filecache]==0.14.4
     #   cachecontrol
     #   pip-audit
 certifi==2026.2.25
-    # via requests
+    # via
+    #   httpcore
+    #   httpx
+    #   requests
 cfgv==3.5.0
     # via pre-commit
 charset-normalizer==3.4.7
@@ -44,8 +49,16 @@ fsspec==2026.4.0
     # via
     #   huggingface-hub
     #   torch
+h11==0.16.0
+    # via httpcore
 hf-xet==1.5.0
     # via huggingface-hub
+httpcore==1.0.9
+    # via httpx
+httpx==0.28.1
+    # via
+    #   langgraph-sdk
+    #   langsmith
 huggingface-hub==0.36.2
     # via
     #   sentence-transformers
@@ -56,13 +69,38 @@ hypothesis==6.152.1
 identify==2.6.19
     # via pre-commit
 idna==3.12
-    # via requests
+    # via
+    #   anyio
+    #   httpx
+    #   requests
 iniconfig==2.3.0
     # via pytest
 jinja2==3.1.6
     # via torch
 joblib==1.5.3
     # via scikit-learn
+jsonpatch==1.33
+    # via langchain-core
+jsonpointer==3.1.1
+    # via jsonpatch
+langchain-core==0.3.76
+    # via
+    #   langgraph
+    #   langgraph-checkpoint
+    #   langgraph-prebuilt
+    #   precept (pyproject.toml)
+langgraph==0.6.11
+    # via precept (pyproject.toml)
+langgraph-checkpoint==3.0.1
+    # via
+    #   langgraph
+    #   langgraph-prebuilt
+langgraph-prebuilt==0.6.5
+    # via langgraph
+langgraph-sdk==0.2.15
+    # via langgraph
+langsmith==0.8.5
+    # via langchain-core
 librt==0.9.0
     # via mypy
 license-expression==30.4.4
@@ -91,12 +129,20 @@ numpy==2.4.4
     #   scikit-learn
     #   scipy
     #   transformers
+orjson==3.11.9
+    # via
+    #   langgraph-sdk
+    #   langsmith
+ormsgpack==1.12.2
+    # via langgraph-checkpoint
 packageurl-python==0.17.6
     # via cyclonedx-python-lib
 packaging==26.1
     # via
     #   build
     #   huggingface-hub
+    #   langchain-core
+    #   langsmith
     #   pip-audit
     #   pip-requirements-parser
     #   pytest
@@ -126,7 +172,11 @@ pre-commit==4.5.1
 py-serializable==2.1.0
     # via cyclonedx-python-lib
 pydantic==2.13.3
-    # via precept (pyproject.toml)
+    # via
+    #   langchain-core
+    #   langgraph
+    #   langsmith
+    #   precept (pyproject.toml)
 pydantic-core==2.46.3
     # via pydantic
 pygments==2.20.0
@@ -151,6 +201,7 @@ pyyaml==6.0.3
     # via
     #   bandit
     #   huggingface-hub
+    #   langchain-core
     #   pre-commit
     #   precept (pyproject.toml)
     #   transformers
@@ -160,8 +211,12 @@ requests==2.33.1
     # via
     #   cachecontrol
     #   huggingface-hub
+    #   langsmith
     #   pip-audit
+    #   requests-toolbelt
     #   transformers
+requests-toolbelt==1.0.0
+    # via langsmith
 rich==15.0.0
     # via
     #   bandit
@@ -186,6 +241,8 @@ stevedore==5.7.0
     # via bandit
 sympy==1.14.0
     # via torch
+tenacity==9.1.4
+    # via langchain-core
 threadpoolctl==3.6.0
     # via scikit-learn
 tokenizers==0.22.2
@@ -208,6 +265,7 @@ types-pyyaml==6.0.12.20260408
 typing-extensions==4.15.0
     # via
     #   huggingface-hub
+    #   langchain-core
     #   mypy
     #   pydantic
     #   pydantic-core
@@ -217,10 +275,18 @@ typing-inspection==0.4.2
     # via pydantic
 urllib3==2.6.3
     # via requests
+uuid-utils==0.15.0
+    # via langsmith
 virtualenv==21.2.4
     # via pre-commit
 wheel==0.46.3
     # via pip-tools
+xxhash==3.7.0
+    # via
+    #   langgraph
+    #   langsmith
+zstandard==0.25.0
+    # via langsmith
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

@@ -27,6 +27,8 @@ dependencies = [
     "pyyaml>=6.0,<7",
     "sentence-transformers>=2.2,<4",
     "numpy>=1.24,<3",
+    "langgraph>=0.5,<0.7",
+    "langchain-core>=0.3,<1",
 ]
 
 [project.optional-dependencies]
@@ -90,6 +92,16 @@ warn_unreachable = true
 [[tool.mypy.overrides]]
 module = ["sentence_transformers.*", "torch.*"]
 ignore_missing_imports = true
+
+# langgraph is a HIGH-instability runtime dep (DEPENDENCIES.md 4.1). Treat
+# its surface as untyped: insulates strict type-checking from API churn and
+# keeps mypy green where langgraph is not installed. follow_imports=skip
+# makes the treatment uniform whether or not the package is installed in the
+# checking environment.
+[[tool.mypy.overrides]]
+module = ["langgraph.*", "langchain_core.*"]
+ignore_missing_imports = true
+follow_imports = "skip"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
