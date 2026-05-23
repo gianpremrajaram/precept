@@ -38,6 +38,15 @@ test = [
     "hypothesis>=6,<7",
 ]
 docs = []
+# OTel API + SDK are both opt-in: base `pip install precept` stays free of
+# OTel surface. Users who export to OTel install `pip install precept[otel]`.
+# Rationale recorded in DEPENDENCIES.md §3.2; the import-guard pattern in
+# `precept.exporters.otel` handles graceful absence so the API does not need
+# to be a runtime dep (which would otherwise add ~1 MB to every base install).
+otel = [
+    "opentelemetry-api>=1.30,<2",
+    "opentelemetry-sdk>=1.30,<2",
+]
 dev = [
     "pytest>=8,<9",
     "pytest-cov>=5,<6",
@@ -102,6 +111,15 @@ ignore_missing_imports = true
 module = ["langgraph.*", "langchain_core.*"]
 ignore_missing_imports = true
 follow_imports = "skip"
+
+# opentelemetry ships in the `[otel]` extra only (DEPENDENCIES.md §3.2). Base
+# installs do not have it, so mypy must not error on missing imports. The
+# `precept.exporters.otel` module wraps every OTel symbol behind a runtime
+# import guard plus TYPE_CHECKING-only annotations, so treating the surface
+# as `Any` here matches the runtime reality on base installs.
+[[tool.mypy.overrides]]
+module = ["opentelemetry.*"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
