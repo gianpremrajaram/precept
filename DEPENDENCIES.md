@@ -154,13 +154,14 @@ Every external dependency is a risk surface: upstream breakage, security advisor
 | `numpy` | `>=1.24,<3` | Typing support, avoiding numpy 2.0 pre-release issues | `<3` | Low |
 | `langgraph` | `>=0.5,<0.7` | `create_handoff_tool` shape; issue #205 context; `Command` API stable | `<0.7` | **High** - see section 4.1 |
 | `langchain-core` | `>=0.3` | Used transitively via langgraph; pin to what langgraph needs | `<1` | Medium |
-| `opentelemetry-api` | `>=1.30` | GenAI semantic conventions coverage | `<2` | Medium - GenAI conventions experimental |
+
+`opentelemetry-api` was originally planned as a runtime dep but moved into the `precept[otel]` extra in PRC-020 (Rev 2 follow-up). Reason: even the API alone is ~1 MB plus a non-trivial transitive surface for users who never export to OTel. The import-guard in `precept.exporters.otel` already handles the absent case (module imports cleanly; stub `OTelExporter` raises `ImportError` with the install hint on construction), so making the API a hard runtime dep was redundant.
 
 ### 3.2 Optional dependencies (extras)
 
 | Extra | Packages | Rationale |
 |---|---|---|
-| `precept[otel]` | `opentelemetry-sdk>=1.30,<2` | OTel SDK is ~15MB install; users who don't export to OTel shouldn't pay. PRC-020 import-guards this explicitly. |
+| `precept[otel]` | `opentelemetry-api>=1.30,<2`, `opentelemetry-sdk>=1.30,<2` | Both OTel API and SDK ship together as an opt-in extra so base installs stay free of OTel surface. PRC-020 import-guards both explicitly. |
 | `precept[dev]` (contributors only) | `pytest`, `pytest-cov`, `hypothesis`, `mypy`, `ruff`, `bandit`, `pip-audit`, `pre-commit` | All contributor tools. Note: `black` NOT included; `ruff format` is the formatter. |
 
 Dev-deps change from Rev 1: `black` removed; it duplicated `ruff format` and added hook latency and potential format conflicts. `ruff` alone handles both lint and format.
