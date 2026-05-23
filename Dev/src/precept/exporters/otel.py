@@ -75,7 +75,7 @@ try:
 
     _OTEL_AVAILABLE = True
 except ImportError:
-    _trace_api = None  # type: ignore[assignment]
+    _trace_api = None  # type: ignore[assignment, unused-ignore]
     _OTEL_AVAILABLE = False
 
 
