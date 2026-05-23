@@ -10,8 +10,8 @@ fields:
     - hypothesis
     - citations
   preserved_entities:
-    - primary_source
-    - author
+    - MCS Quarterly Statistics
+    - Boiler Upgrade Scheme
   min_fidelity: 0.75
   forbidden_drops:
     - uncertainty_bounds

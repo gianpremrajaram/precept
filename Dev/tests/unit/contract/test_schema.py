@@ -215,7 +215,7 @@ def test_duplicates_rejected(field_name: str, fields: dict[str, object]) -> None
 
 def test_metadata_rejects_non_string_values() -> None:
     with pytest.raises(ContractValidationError):
-        HandoffContract(name="x", fields={}, metadata={"owner": 42})  # type: ignore[dict-item]
+        HandoffContract(name="x", fields={}, metadata={"owner": 42})
 
 
 # --- error structure ------------------------------------------------------

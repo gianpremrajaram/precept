@@ -59,7 +59,7 @@ def test_precept_contract_attribute_is_valid_handoff_contract() -> None:
     def handoff(state: dict[str, object]) -> dict[str, object]:
         return state
 
-    contract = handoff.__precept_contract__
+    contract = handoff.__precept_contract__  # type: ignore[attr-defined]
     assert isinstance(contract, HandoffContract)
     assert contract.name == "researcher_to_summariser"
     assert contract.mode == "block"
@@ -77,7 +77,7 @@ def test_omitted_kwargs_fall_back_to_schema_defaults() -> None:
     def handoff(state: dict[str, object]) -> dict[str, object]:
         return state
 
-    contract = handoff.__precept_contract__
+    contract = handoff.__precept_contract__  # type: ignore[attr-defined]
     assert contract.version == "0.1"
     assert contract.mode == "warn"
     assert contract.description is None

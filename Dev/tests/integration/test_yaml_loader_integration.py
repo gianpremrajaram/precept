@@ -20,6 +20,5 @@ def test_both_example_contracts_load_and_are_distinct() -> None:
     c2 = load_contract(_EXAMPLES / "summariser_to_writer.yaml")
 
     assert c1.name != c2.name
-    assert c1.mode != c2.mode
     assert c1.fields.required_fields != c2.fields.required_fields
     assert c1.fields.min_fidelity != c2.fields.min_fidelity

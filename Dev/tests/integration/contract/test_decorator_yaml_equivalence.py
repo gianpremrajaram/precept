@@ -50,7 +50,7 @@ def test_decorator_matches_yaml_for_fully_specified_contract() -> None:
     def handoff(state: dict[str, object]) -> dict[str, object]:
         return state
 
-    from_decorator: HandoffContract = handoff.__precept_contract__
+    from_decorator: HandoffContract = handoff.__precept_contract__  # type: ignore[attr-defined]
     from_yaml = load_contract_from_string(_FULL_YAML)
 
     # Explicit field-level asserts first (diagnostic clarity on failure).
@@ -69,7 +69,7 @@ def test_decorator_matches_yaml_for_default_only_contract() -> None:
     def handoff(state: dict[str, object]) -> dict[str, object]:
         return state
 
-    from_decorator: HandoffContract = handoff.__precept_contract__
+    from_decorator: HandoffContract = handoff.__precept_contract__  # type: ignore[attr-defined]
     from_yaml = load_contract_from_string("name: minimal\nfields: {}\n")
 
     # Defaults must resolve identically across frontends.
