@@ -6,28 +6,45 @@
 
 ## What Precept is
 
-Precept is a Python SDK that lets developers declare **handoff integrity contracts** for multi-agent pipelines (LangGraph-first), evaluate boundary payloads against those contracts, and emit violation events via OpenTelemetry GenAI semantic conventions. The v0 scorer is an embedding-similarity proxy; a research-validated calibrated scorer is the deliverable of an MSc dissertation and lands in Phase 2.
+Python SDK for declaring **handoff integrity contracts** on multi-agent pipelines (LangGraph-first), evaluating boundary payloads against them, and emitting violation events via OTel GenAI semantic conventions.
 
-**Positioning.** "Boundary fidelity, not behaviour governance." Differentiator: "the policy passes, the information fails." Precept contracts the information that must persist between agents - distinct from output validators (Guardrails, Pydantic AI), trace observability (Langfuse, LangSmith, Arize, Galileo), behavioural contract tools (agentcontract/spec, relari-ai/agent-contracts), and policy governance (Microsoft Agent Governance Toolkit).
-
-**What Precept is not.** Not an MI measurement tool at v0 (dissertation-gated). Not an A2A protocol implementation at v0 (Phase 2). Not a general-purpose LLM evaluation framework. Not a replacement for trace observability.
+- **Positioning:** boundary fidelity, not behaviour governance. Tagline: "the policy passes, the information fails."
+- **v0 scorer:** embedding-similarity proxy (cosine). **Phase 2 scorer:** research-validated calibrated scorer (MSc dissertation deliverable).
+- **Distinct from:** output validators (Guardrails, Pydantic AI), trace observability (Langfuse, LangSmith, Arize, Galileo), behavioural contract tools (agentcontract/spec, relari-ai/agent-contracts), policy governance (Microsoft Agent Governance Toolkit).
+- **NOT at v0:** mutual-information measurement (dissertation-gated), A2A protocol, general LLM-eval framework, trace observability replacement.
 
 ---
 
 ## Authoritative planning documents
 
-Two markdown files in the repo root are the single source of truth for scope, sequencing, and release criteria. **Read them before starting any ticket.**
+**GitHub Issues is the source of truth for the backlog.** The local `ISSUES.md` and `DEPENDENCIES.md` files mirror GH for offline reference and are large (~129 KB and ~38 KB respectively). **Do not read them wholesale** - pull only the slice you need.
 
-1. **ISSUES.md** - the canonical engineering backlog. 37 tickets (PRC-001 through PRC-036 plus PRC-004a). Every ticket has Context, Acceptance Criteria, Technical Notes, Testing Requirements, Out of Scope, Definition of Done. Use the ticket IDs in branch names, commit messages, and PR titles.
-2. **DEPENDENCIES.md** - technical governance layer. Critical path, dependency graph, risk register, cross-cutting concerns, release readiness checklist. Consult section 2 (dependency graph) before starting a ticket to check prerequisites.
+If a ticket on GitHub conflicts with this CLAUDE.md, the GH ticket wins for that specific ticket. Raise the conflict explicitly rather than silently picking one.
 
-If a ticket in ISSUES.md conflicts with this CLAUDE.md, ISSUES.md wins for that specific ticket. Raise the conflict explicitly rather than silently picking one.
+### Lookup index
+
+Use the narrowest read that answers the question.
+
+| Need | How to get it |
+|---|---|
+| Active ticket details | `gh issue view <number> --json title,body,labels,state` (PRC-XXX is the title prefix, not the number) |
+| Find a ticket by ID | `gh issue list --search "PRC-XXX in:title" --state all --json number,title,state` |
+| Open backlog | `gh issue list --state open --limit 50` |
+| Recent merges | `git log --oneline -20` |
+| Dep graph for a ticket's prerequisites | `grep -n "PRC-XXX" DEPENDENCIES.md` then read that section only |
+| Risk register | DEPENDENCIES.md §4 (read just that section) |
+| Cross-cutting concerns | DEPENDENCIES.md §5 |
+| Release gates | DEPENDENCIES.md §8 |
+| Critical-path priorities | DEPENDENCIES.md §1 |
+| Architectural constraints | this file, "Critical architectural constraints" section |
+| Code style rules | this file, "Code style and architecture" section |
+| Offline ticket lookup (no network) | `grep -n "^## PRC-XXX" ISSUES.md` then read that line range only |
 
 ---
 
 ## Ticket workflow
 
-1. **Pick a ticket.** Confirm all its dependencies (in the ticket header AND in DEPENDENCIES.md section 2) are merged on `main`. If not, stop and work on the blocker first.
+1. **Pick a ticket.** Fetch it: `gh issue view <number> --json title,body,labels,state`. Confirm its listed dependencies are merged on `main` (cross-check DEPENDENCIES.md §2 only if the listed deps look ambiguous). If a blocker isn't merged, stop and work on the blocker first.
 2. **Branch.** Name: `<type>/PRC-XXX-short-slug`. Types: `feat`, `fix`, `docs`, `infra`, `test`, `research`. Example: `feat/PRC-011-embedding-proxy`.
 3. **Scope discipline.** Do exactly what the Acceptance Criteria list, nothing more. If you identify scope creep temptation mid-ticket (e.g., "while I'm here, let me also fix..."), write it as a follow-up issue - do not pull it into the current PR.
 4. **Tests alongside code.** Every acceptance-criteria test listed in "Testing Requirements" must be written and passing before the PR opens.
@@ -120,7 +137,7 @@ Use OOP when: (1) a component holds injected dependencies or mutable state (`Eva
 
 - `pip install -e .[dev]` for dev environment. Do NOT commit venv directories.
 - A `requirements-dev.lock` file exists for reproducible CI environments. Regenerate it via `pip-compile pyproject.toml --extra dev -o requirements-dev.lock` when deps change.
-- Never add a runtime dependency without updating ISSUES.md (dependency analysis in DEPENDENCIES.md section 3) AND getting explicit approval.
+- Never add a runtime dependency without filing a GH issue (deps analysis criteria in DEPENDENCIES.md §3) AND getting explicit approval.
 
 ### Lint, format, type
 
@@ -146,36 +163,42 @@ Use OOP when: (1) a component holds injected dependencies or mutable state (`Eva
 ## Critical architectural constraints
 
 ### IR-first contract architecture
-
-The `HandoffContract` Pydantic model is the single source of truth. Both the YAML loader AND the decorator frontend produce `HandoffContract` instances; the evaluator consumes only `HandoffContract`. **Never add frontend-specific fields to the evaluator.** A future third frontend (JSON, A2A extension, TOML) should drop in as a new parser module without touching the engine.
+- Single source of truth: `HandoffContract` Pydantic model.
+- Both the YAML loader AND the decorator frontend produce `HandoffContract` instances; the evaluator consumes only `HandoffContract`.
+- **Never add frontend-specific fields to the evaluator.** A future frontend (JSON, A2A, TOML) drops in as a new parser module without touching the engine.
 
 ### Scorer stays generic
-
-The `Scorer` ABC docstring must never reference "mutual information". MI is one possible method among four (KSG, Gaussian closed-form, InfoNCE, MINE) the dissertation will evaluate; the interface must not over-commit before the research validates a method. The v0 concrete is `EmbeddingProxy` (embedding cosine). The Phase 2 concrete is `CalibratedScorer`. Do not name the Phase 2 class `MIScorer`.
+- The `Scorer` ABC docstring must NEVER reference "mutual information". MI is one of four candidate methods (KSG, Gaussian closed-form, InfoNCE, MINE) the dissertation will evaluate; the interface must not over-commit before research validates one.
+- v0 concrete: `EmbeddingProxy` (embedding cosine). Phase 2 concrete: `CalibratedScorer`.
+- Do NOT name the Phase 2 class `MIScorer`.
 
 ### Two integration paths for LangGraph
-
-PRC-014 ships BOTH `create_precept_handoff_tool` (wraps `langgraph_supervisor.create_handoff_tool`) AND `evaluate_handoff()` (pure function for `Command(goto=...)` pattern users). Do not collapse these into one path. The pure function is the framework-API-independent fallback; the tool wrapper is the convenience on top.
+- PRC-014 ships BOTH `create_precept_handoff_tool` (wraps `langgraph_supervisor.create_handoff_tool`) AND `evaluate_handoff()` (pure function for `Command(goto=...)` users).
+- Do NOT collapse into one path. Pure function = framework-API-independent fallback; tool wrapper = convenience on top.
 
 ### Contracted-fields-only extraction
-
-`extract_payload()` in PRC-016 reads ONLY the fields named in the contract. **Never recurse into uncontracted state.** This is the strongest possible defence against accidentally leaking secrets from state into `ViolationEvent` or exporters. A regression test enforces this; do not modify it to relax the guarantee.
+- `extract_payload()` (PRC-016) reads ONLY fields named in the contract. **Never recurse into uncontracted state.**
+- This is the primary defence against leaking secrets from state into events/exporters. A regression test enforces it; do NOT relax.
 
 ### Constructor-time model load
-
-`EmbeddingProxy` loads its sentence-transformer model in `__init__`, not lazily on first `score()`. This moves the ~5 second first-run cost to application startup (where it belongs) and avoids blocking an asyncio event loop mid-handoff. Do not "optimise" this back to lazy loading.
+- `EmbeddingProxy` loads its sentence-transformer model in `__init__`, NOT lazily on first `score()`.
+- Moves the ~5 s first-run cost to application startup; avoids blocking the asyncio loop mid-handoff.
+- Do NOT "optimise" this back to lazy loading.
 
 ### 4 KiB event payload ceiling
-
-`ViolationEvent.to_compact_dict()` enforces a 4 KiB total size limit with progressive truncation; the OTel exporter has a secondary per-attribute check. 4 KiB is the realistic OTel-backend lower bound (Datadog, Jaeger). Events exceeding this are silently dropped by backends, which breaks Precept's core value proposition. Do not relax this without a backend-specific justification.
+- `ViolationEvent.to_compact_dict()` enforces 4 KiB total with progressive truncation; OTel exporter has a secondary per-attribute check.
+- 4 KiB is the realistic OTel-backend lower bound (Datadog, Jaeger). Larger events get silently dropped, which breaks Precept's value prop.
+- Do NOT relax without a backend-specific justification.
 
 ### Async safety
-
-`evaluate_handoff()` auto-detects a running asyncio loop via `asyncio.get_running_loop()` and dispatches the sync `Scorer.score()` call to `asyncio.to_thread()`. This is how the sync Scorer API coexists with async LangGraph nodes without blocking the loop. Do not add a separate async Scorer API; the wrapper is sufficient for v0.
+- `evaluate_handoff()` auto-detects a running asyncio loop via `asyncio.get_running_loop()` and dispatches the sync `Scorer.score()` to `asyncio.to_thread()`.
+- This lets the sync Scorer API coexist with async LangGraph nodes without blocking.
+- Do NOT add a separate async Scorer API; the wrapper is sufficient for v0.
 
 ### Fail-open on missing contract
-
-If `evaluate_handoff` is called with a contract name not in the registry, log WARNING and return a synthetic pass event. Do NOT raise. Observability tooling that crashes the pipeline is worse than observability that silently misses a check. Document this behaviour prominently wherever it's invoked.
+- If `evaluate_handoff` is called with a contract name not in the registry: log WARNING, return a synthetic pass event. Do NOT raise.
+- Rationale: observability that crashes the pipeline is worse than observability that silently misses a check.
+- Document this behaviour prominently wherever it's invoked.
 
 ---
 
@@ -200,7 +223,7 @@ If `evaluate_handoff` is called with a contract name not in the registry, log WA
 ## Things to always do
 
 1. **Always read the ticket end-to-end** before starting work. Acceptance criteria + testing requirements are the checklist.
-2. **Always check the dependency graph** (DEPENDENCIES.md section 2) before starting a ticket.
+2. **Always check the ticket's listed prerequisites are merged.** Cross-check DEPENDENCIES.md §2 only if the ticket's dep list looks incomplete or ambiguous.
 3. **Always write tests first or alongside code**, never after. PRs with implementation and no tests get bounced.
 4. **Always run `ruff check . && ruff format --check . && mypy --strict src/precept && pytest` locally** before pushing.
 5. **Always update CHANGELOG.md** for user-visible changes, under `[Unreleased]` in the appropriate section.
@@ -215,20 +238,18 @@ If `evaluate_handoff` is called with a contract name not in the registry, log WA
 ## Release discipline
 
 ### Version bumping
-
-- Pre-1.0 minor bumps (0.1 → 0.2) MAY contain breaking changes WITH a CHANGELOG migration note.
+- Pre-1.0 minor bumps (0.1 → 0.2) MAY contain breaking changes, only with a CHANGELOG migration note.
 - Post-1.0, breaking changes are major bumps only.
 - Patch bumps (0.1.0 → 0.1.1) are strictly additive or bug-fix only.
 
 ### Before tagging a release
-
-Consult DEPENDENCIES.md section 8 (Release Readiness Checklist). Every gate must be green. Timeline does not override quality - a release delayed 24h for a failing gate is always better than shipping broken.
+- Consult DEPENDENCIES.md §8 (Release Readiness Checklist). Every gate must be green.
+- Timeline does not override quality: a release delayed 24h for a failing gate beats shipping broken.
 
 ### Release mechanics
-
-- PyPI + TestPyPI OIDC trusted publishers are pre-configured (PRC-004a). Release workflow (`release.yml`) fires on tag push matching `v*.*.*`.
-- Dry run to TestPyPI via `release-testpypi.yml` (`workflow_dispatch`) before tagging.
-- Rollback runbook lives in `docs/release_process.md`. Know it before a release goes out; do not learn it mid-incident.
+- PyPI + TestPyPI OIDC trusted publishers pre-configured (PRC-004a). Release workflow (`release.yml`) fires on tag push matching `v*.*.*`.
+- Dry-run to TestPyPI via `release-testpypi.yml` (`workflow_dispatch`) before tagging.
+- Rollback runbook: `docs/release_process.md`. Know it before a release; do not learn it mid-incident.
 
 ---
 
@@ -255,10 +276,10 @@ If a user request or emergent need implies one of these, open an issue against t
 
 ## When in doubt
 
-1. Re-read ISSUES.md for the ticket you are working on. The answer is usually there.
-2. Re-read DEPENDENCIES.md for cross-cutting concerns that might apply.
-3. If still unclear, ask in the PR description or open a draft PR with the question pinned at the top. Do not guess on architectural decisions.
-4. For anything marked P0 on the critical path (see DEPENDENCIES.md section 1), err heavily on the side of caution and explicit clarification.
+1. Re-fetch the ticket: `gh issue view <number>`. Acceptance Criteria + Testing Requirements answer most "should I do X?" questions.
+2. Grep the relevant section of DEPENDENCIES.md (§4 risks, §5 cross-cutting). Do NOT read it wholesale.
+3. If still unclear, ask in the PR description or pin the question at the top of a draft PR. Do not guess on architectural decisions.
+4. For anything marked P0 on the critical path (DEPENDENCIES.md §1), err heavily on the side of caution and explicit clarification.
 
 ---
 
