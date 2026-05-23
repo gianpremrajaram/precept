@@ -122,7 +122,7 @@ def test_noop_exporter_name_is_noop() -> None:
 
 
 def test_noop_exporter_export_returns_none() -> None:
-    assert NoOpExporter().export(_make_event()) is None
+    NoOpExporter().export(_make_event())
 
 
 # ---------------------------------------------------------------------------

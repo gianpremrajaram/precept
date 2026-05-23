@@ -1,13 +1,17 @@
 # Precept handoff contract: summariser -> writer.
-# Warn-only: violations emit events but do not block the pipeline. `mode`
-# is omitted deliberately to exercise the default value from the schema.
+# Blocking mode: the writer must not receive a payload that drops the
+# primary-source attribution or strips the uncertainty bounds carried by
+# the summariser. Aligned with the demo fixtures under examples/fixtures/.
 name: summariser_to_writer
 version: "0.1"
+mode: block
 description: "Contract for summariser handing off to writer"
 fields:
   required_fields:
     - summary
     - key_entities
   preserved_entities:
-    - primary_source
+    - MCS Quarterly Statistics
   min_fidelity: 0.70
+  forbidden_drops:
+    - uncertainty_bounds

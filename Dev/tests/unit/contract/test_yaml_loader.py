@@ -26,17 +26,19 @@ def test_researcher_to_summariser_loads_with_expected_fields() -> None:
     assert c.mode == "block"
     assert c.description == "Contract for research agent handing off to summariser"
     assert c.fields.required_fields == ["hypothesis", "citations"]
-    assert c.fields.preserved_entities == ["primary_source", "author"]
+    assert c.fields.preserved_entities == ["MCS Quarterly Statistics", "Boiler Upgrade Scheme"]
     assert c.fields.min_fidelity == 0.75
     assert c.fields.forbidden_drops == ["uncertainty_bounds"]
 
 
-def test_summariser_to_writer_loads_with_default_mode() -> None:
+def test_summariser_to_writer_loads_with_block_mode_and_forbidden_drops() -> None:
     c = load_contract(_EXAMPLES / "summariser_to_writer.yaml")
     assert c.name == "summariser_to_writer"
-    assert c.mode == "warn", "omitted mode should default to 'warn'"
+    assert c.mode == "block"
     assert c.fields.required_fields == ["summary", "key_entities"]
+    assert c.fields.preserved_entities == ["MCS Quarterly Statistics"]
     assert c.fields.min_fidelity == 0.70
+    assert c.fields.forbidden_drops == ["uncertainty_bounds"]
 
 
 # --- From-string loading --------------------------------------------------
