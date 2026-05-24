@@ -1,0 +1,221 @@
+{
+  "generated_at_iso": "2026-05-22T10:00:01+00:00",
+  "hops": [
+    {
+      "handoff_metadata": {
+        "contract_name": "researcher_to_summariser",
+        "source_agent": "researcher",
+        "target_agent": "summariser",
+        "timestamp_iso": "2026-05-22T10:00:00+00:00"
+      },
+      "impact_summary": null,
+      "source_payload": {
+        "author": "Microgeneration Certification Scheme",
+        "citations": [
+          "MCS Quarterly Statistics Q4 2025 (gov.uk/mcs)",
+          "BEIS Heat Pump Adoption Report 2025"
+        ],
+        "hypothesis": "UK heat-pump installations grew approximately 35% year-on-year in 2025, driven by Boiler Upgrade Scheme uptake and a 12% decline in average installation cost.",
+        "primary_source": "MCS Quarterly Statistics Q4 2025 (gov.uk/mcs)",
+        "uncertainty_bounds": "Counts +/-4% (95% CI); regional breakdown +/-9% in low-density areas."
+      },
+      "target_payload": {
+        "author": "Microgeneration Certification Scheme",
+        "citations": [
+          "MCS Quarterly Statistics Q4 2025 (gov.uk/mcs)",
+          "BEIS Heat Pump Adoption Report 2025"
+        ],
+        "hypothesis": "UK heat-pump installations grew approximately 35% year-on-year in 2025, driven by Boiler Upgrade Scheme uptake and a 12% decline in average installation cost.",
+        "primary_source": "MCS Quarterly Statistics Q4 2025 (gov.uk/mcs)",
+        "uncertainty_bounds": "Counts +/-4% (95% CI); regional breakdown +/-9% in low-density areas."
+      },
+      "violation_event": {
+        "contract_name": "researcher_to_summariser",
+        "contract_version": "0.1",
+        "event_id": "demo-d2b6724f7a0f1cdf8f9610e8",
+        "mode": "block",
+        "passed": true,
+        "rule_results": [
+          {
+            "details": {
+              "missing": [],
+              "required": [
+                "hypothesis",
+                "citations"
+              ]
+            },
+            "passed": true,
+            "rule_name": "required_fields",
+            "violation_message": null
+          },
+          {
+            "details": {
+              "entities": [
+                "MCS Quarterly Statistics",
+                "Boiler Upgrade Scheme"
+              ],
+              "missing": []
+            },
+            "passed": true,
+            "rule_name": "preserved_entities",
+            "violation_message": null
+          },
+          {
+            "details": {
+              "dropped": [],
+              "forbidden": [
+                "uncertainty_bounds"
+              ]
+            },
+            "passed": true,
+            "rule_name": "forbidden_drops",
+            "violation_message": null
+          }
+        ],
+        "schema_version": "0.1",
+        "score_result": {
+          "field_scores": [
+            {
+              "field_name": "hypothesis",
+              "method": "embedding_cosine",
+              "passed": true,
+              "score": 1.0
+            },
+            {
+              "field_name": "citations",
+              "method": "embedding_cosine",
+              "passed": true,
+              "score": 1.0
+            }
+          ],
+          "overall_score": 1.0,
+          "scorer_name": "embedding_proxy",
+          "scorer_version": "0.1.0",
+          "timestamp_iso": "2026-05-22T10:00:00+00:00"
+        },
+        "source_summary": {
+          "author": "Microgeneration Certification Scheme",
+          "citations": "['MCS Quarterly Statistics Q4 2025 (gov.uk/mcs)', 'BEIS Heat Pump Adoption Report 2025']",
+          "hypothesis": "UK heat-pump installations grew approximately 35% year-on-year in 2025, driven by Boiler Upgrade Sch",
+          "primary_source": "MCS Quarterly Statistics Q4 2025 (gov.uk/mcs)",
+          "uncertainty_bounds": "Counts +/-4% (95% CI); regional breakdown +/-9% in low-density areas."
+        },
+        "target_summary": {
+          "author": "Microgeneration Certification Scheme",
+          "citations": "['MCS Quarterly Statistics Q4 2025 (gov.uk/mcs)', 'BEIS Heat Pump Adoption Report 2025']",
+          "hypothesis": "UK heat-pump installations grew approximately 35% year-on-year in 2025, driven by Boiler Upgrade Sch",
+          "primary_source": "MCS Quarterly Statistics Q4 2025 (gov.uk/mcs)",
+          "uncertainty_bounds": "Counts +/-4% (95% CI); regional breakdown +/-9% in low-density areas."
+        },
+        "triggered_at_iso": "2026-05-22T10:00:00+00:00"
+      }
+    },
+    {
+      "handoff_metadata": {
+        "contract_name": "summariser_to_writer",
+        "source_agent": "summariser",
+        "target_agent": "writer",
+        "timestamp_iso": "2026-05-22T10:00:01+00:00"
+      },
+      "impact_summary": "Handoff from summariser to writer blocked: preserved_entities failed on contract 'summariser_to_writer'. Downstream impact: Primary sources may be dropped from final output, breaking citation integrity.",
+      "source_payload": {
+        "key_entities": [
+          "MCS",
+          "Boiler Upgrade Scheme"
+        ],
+        "primary_source": "MCS Quarterly Statistics Q4 2025 (gov.uk/mcs)",
+        "summary": "UK heat-pump installations rose around 35% YoY in 2025 (MCS Q4 2025), aided by the Boiler Upgrade Scheme; counts carry a +/-4% confidence interval.",
+        "uncertainty_bounds": "Counts +/-4% (95% CI); regional breakdown +/-9% in low-density areas."
+      },
+      "target_payload": {
+        "key_entities": [
+          "MCS",
+          "Boiler Upgrade Scheme"
+        ],
+        "summary": "UK heat-pump installations rose around 35% YoY in 2025 (MCS Q4 2025), aided by the Boiler Upgrade Scheme; counts carry a +/-4% confidence interval."
+      },
+      "violation_event": {
+        "contract_name": "summariser_to_writer",
+        "contract_version": "0.1",
+        "event_id": "demo-d6a4d3ca1870490e0ffc4a43",
+        "mode": "block",
+        "passed": false,
+        "rule_results": [
+          {
+            "details": {
+              "missing": [],
+              "required": [
+                "summary",
+                "key_entities"
+              ]
+            },
+            "passed": true,
+            "rule_name": "required_fields",
+            "violation_message": null
+          },
+          {
+            "details": {
+              "entities": [
+                "MCS Quarterly Statistics"
+              ],
+              "missing": [
+                "MCS Quarterly Statistics"
+              ]
+            },
+            "passed": false,
+            "rule_name": "preserved_entities",
+            "violation_message": "Preserved entity 'MCS Quarterly Statistics' present in source but missing in target"
+          },
+          {
+            "details": {
+              "dropped": [
+                "uncertainty_bounds"
+              ],
+              "forbidden": [
+                "uncertainty_bounds"
+              ]
+            },
+            "passed": false,
+            "rule_name": "forbidden_drops",
+            "violation_message": "Forbidden drop: field 'uncertainty_bounds' present in source but absent in target"
+          }
+        ],
+        "schema_version": "0.1",
+        "score_result": {
+          "field_scores": [
+            {
+              "field_name": "summary",
+              "method": "embedding_cosine",
+              "passed": true,
+              "score": 1.0
+            },
+            {
+              "field_name": "key_entities",
+              "method": "embedding_cosine",
+              "passed": true,
+              "score": 1.0
+            }
+          ],
+          "overall_score": 1.0,
+          "scorer_name": "embedding_proxy",
+          "scorer_version": "0.1.0",
+          "timestamp_iso": "2026-05-22T10:00:01+00:00"
+        },
+        "source_summary": {
+          "key_entities": "['MCS', 'Boiler Upgrade Scheme']",
+          "primary_source": "MCS Quarterly Statistics Q4 2025 (gov.uk/mcs)",
+          "summary": "UK heat-pump installations rose around 35% YoY in 2025 (MCS Q4 2025), aided by the Boiler Upgrade Sc",
+          "uncertainty_bounds": "Counts +/-4% (95% CI); regional breakdown +/-9% in low-density areas."
+        },
+        "target_summary": {
+          "key_entities": "['MCS', 'Boiler Upgrade Scheme']",
+          "summary": "UK heat-pump installations rose around 35% YoY in 2025 (MCS Q4 2025), aided by the Boiler Upgrade Sc"
+        },
+        "triggered_at_iso": "2026-05-22T10:00:01+00:00"
+      }
+    }
+  ],
+  "precept_version": "0.0.1",
+  "schema_version": "0.1",
+  "trace_name": "degraded"
+}

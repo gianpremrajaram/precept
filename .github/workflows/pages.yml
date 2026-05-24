@@ -1,0 +1,56 @@
+name: Pages
+
+# Publishes the `docs/` directory to GitHub Pages on merges to `main`
+# (and on manual dispatch). The deployed site is the static observatory
+# (PRC-022) + a committed `docs/demo_trace.json` snapshot. No runtime
+# Python: the trace JSON ships pre-generated to keep the deploy job
+# independent of the package's runtime dependencies (a broken import on
+# `main` should not break the public observatory URL).
+#
+# !!! MANUAL STEP REQUIRED — once per repo lifetime !!!
+# In repo Settings -> Pages, set Source to "GitHub Actions". Without that
+# flip, `actions/deploy-pages` fails with "Get Pages site failed". The
+# first push after wiring this workflow may therefore fail; rerun the
+# workflow after flipping the setting.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Prevent overlapping deploys racing each other; let an in-flight deploy
+# finish before kicking off the next one rather than cancelling it
+# (cancelling would leave Pages in an indeterminate state).
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy observatory to Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify required artefacts are committed
+        # The deploy is a pure static-file copy. If the committed
+        # snapshot is missing or schema-bumped, fail loudly here rather
+        # than publishing a broken site.
+        run: |
+          test -f docs/index.html
+          test -f docs/404.html
+          test -f docs/demo_trace.json
+          grep -q '"schema_version": "0.1"' docs/demo_trace.json
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - id: deployment
+        uses: actions/deploy-pages@v4
