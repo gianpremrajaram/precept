@@ -2,6 +2,9 @@
 
 [![CI](https://github.com/gianpremrajaram/precept/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/gianpremrajaram/precept/actions/workflows/ci.yml)
 [![Pages](https://github.com/gianpremrajaram/precept/actions/workflows/pages.yml/badge.svg?branch=main)](https://gianpremrajaram.github.io/precept/)
+[![Status: research preview](https://img.shields.io/badge/status-research%20preview-blueviolet)](#status)
+
+> **Research preview (v0).** APIs are intentionally unstable and will change before v1. The framework is developed alongside an MSc dissertation at UCL (completing August 2026). Suitable for research, experimentation, and early integration feedback; not yet recommended for production.
 
 An open-source framework for measuring, enforcing, and studying information integrity at the boundaries between reasoning components in multi-agent AI systems.
 
@@ -213,6 +216,20 @@ This framework operates directly at that integration layer:
 ## Status
 
 This framework is the subject of an active research programme combining an MSc dissertation (UCL, completing August 2026) with a fellowship application to Encode: AI for Science (Cohort 2, backed by Pillar VC and ARIA). The Contract Layer and MI estimation engine form the first build phase, followed by the Coordination Observatory and full MARL experimental validation.
+
+| Component | State | Notes |
+|-----------|-------|-------|
+| Contract Layer (YAML and decorator frontends, registry, evaluator) | Working | v0 surface ships with the package |
+| LangGraph integration (`evaluate_handoff`, `create_precept_handoff_tool`) | Working | Sync and async-from-coroutine paths |
+| Embedding-similarity proxy scorer (`EmbeddingProxy`) | Working | v0 default; cosine on `all-MiniLM-L6-v2` |
+| OpenTelemetry exporter | Working | Opt-in via the `[otel]` extra |
+| Static HTML observatory and demo trace | Working | Live at the link above; client-side rendering only |
+| Calibrated scorer | In development | Dissertation deliverable; method choice pending KSG / Gaussian / InfoNCE / MINE comparison |
+| Coordination Observatory (MI and transfer entropy monitoring) | In development | Phase 2 |
+| Experimental testbed (Melting Pot, MARL-BC, five information conditions) | In development | Phase 2 |
+| AutoGen, CrewAI, OpenAI Agents SDK integrations | Planned | Post-MVP |
+
+The public API surface under `precept.*` is not yet committed: `__all__` declarations finalise at the v0.1.0 release, and any imported symbol should be treated as subject to change until then.
 
 ## References
 
