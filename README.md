@@ -1,8 +1,11 @@
 # Information Contracts for Multi-Agent Reasoning Systems
 
 [![CI](https://github.com/gianpremrajaram/precept/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/gianpremrajaram/precept/actions/workflows/ci.yml)
+[![Pages](https://github.com/gianpremrajaram/precept/actions/workflows/pages.yml/badge.svg?branch=main)](https://gianpremrajaram.github.io/precept/)
 
 An open-source framework for measuring, enforcing, and studying information integrity at the boundaries between reasoning components in multi-agent AI systems.
+
+**Live observatory:** [gianpremrajaram.github.io/precept](https://gianpremrajaram.github.io/precept/) renders the committed demo trace; drop your own `*.json` trace into the page to inspect a handoff locally (no upload, all rendering is client-side).
 
 ## The Problem
 

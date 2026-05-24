@@ -59,6 +59,16 @@ dev = [
     "pip-tools>=7.4,<8",
     "types-PyYAML>=6.0,<7",
 ]
+# Browser-based observatory snapshot tests (PRC-022). Opt-in: heavy
+# Chromium download (~150 MB) is deliberately *not* in `[dev]` so the
+# normal contributor environment stays small. Install with
+# `pip install -e .[dev,e2e]` and `playwright install --with-deps chromium`,
+# then run `pytest -m e2e`. The default `pytest` run skips these via
+# `-m "not e2e"` in `addopts` below.
+e2e = [
+    "playwright>=1.40,<2",
+    "pytest-playwright>=0.4,<1",
+]
 
 [project.urls]
 Homepage = "https://github.com/gianpremrajaram/precept"
@@ -131,6 +141,13 @@ pythonpath = ["tests/unit/contract"]
 addopts = [
     "--strict-markers",
     "--strict-config",
+    # Skip browser-driven observatory tests by default; opt in with
+    # `pytest -m e2e`. See `[project.optional-dependencies].e2e`.
+    "-m",
+    "not e2e",
+]
+markers = [
+    "e2e: browser-driven observatory snapshot tests (PRC-022). Requires the [e2e] extra and `playwright install chromium`.",
 ]
 
 [tool.coverage.run]

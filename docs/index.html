@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>Precept Observatory</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg-muted: #f6f8fa;
+      --bg-sunken: #eaeef2;
+      --fg: #1f2328;
+      --fg-muted: #656d76;
+      --fg-subtle: #8b949e;
+      --border: #d0d7de;
+      --border-muted: #d8dee4;
+      --accent: #0969da;
+      --pass-fg: #1a7f37;
+      --pass-bg: #dafbe1;
+      --pass-bd: #aceebb;
+      --warn-fg: #9a6700;
+      --warn-bg: #fff8c5;
+      --warn-bd: #eac54f;
+      --fail-fg: #cf222e;
+      --fail-bg: #ffebe9;
+      --fail-bd: #ffc1bc;
+      --drop-bg: #ffebe9;
+      --drop-fg: #82071e;
+      --add-bg: #dafbe1;
+      --add-fg: #0a3622;
+      --change-bg: #fff8c5;
+      --change-fg: #5c4400;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans",
+        Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+        "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      left: -10000px;
+      top: auto;
+      padding: 8px 12px;
+      background: var(--fg);
+      color: var(--bg);
+      z-index: 1000;
+    }
+    .skip-link:focus { left: 8px; top: 8px; }
+
+    header.topbar {
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    header.topbar h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    header.topbar h1 .brand-mark {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      margin-right: 8px;
+      border-radius: 2px;
+      vertical-align: middle;
+    }
+    .topbar-meta {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--fg-muted);
+    }
+
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    section { margin-bottom: 24px; }
+    section h2 {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--fg-muted);
+      margin: 0 0 10px 0;
+    }
+
+    .banner {
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: 1px solid;
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+    .banner.warn { background: var(--warn-bg); border-color: var(--warn-bd); color: var(--warn-fg); }
+    .banner.fail { background: var(--fail-bg); border-color: var(--fail-bd); color: var(--fail-fg); }
+    .banner.info { background: var(--bg-muted); border-color: var(--border-muted); color: var(--fg-muted); }
+
+    .upload-bar {
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: var(--bg-muted);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--fg-muted);
+    }
+    .upload-bar.dragover {
+      border-color: var(--accent);
+      background: #ddf4ff;
+    }
+    .upload-bar input[type="file"] { display: none; }
+    .upload-bar label {
+      display: inline-block;
+      cursor: pointer;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-sans);
+    }
+    .upload-bar label:hover { background: var(--bg-sunken); }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+    }
+    .stat {
+      background: var(--bg-muted);
+      border: 1px solid var(--border-muted);
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+    .stat .stat-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--fg-muted);
+    }
+    .stat .stat-value {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 600;
+      margin-top: 2px;
+      line-height: 1.1;
+    }
+    .stat.pass .stat-value { color: var(--pass-fg); }
+    .stat.fail .stat-value { color: var(--fail-fg); }
+
+    .pipeline-wrap {
+      position: relative;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      overflow-x: auto;
+    }
+    .pipeline-wrap .scroll-hint {
+      position: absolute;
+      right: 8px;
+      bottom: 4px;
+      font-size: 11px;
+      color: var(--fg-subtle);
+      font-family: var(--font-mono);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+    .pipeline-wrap.scrollable .scroll-hint { opacity: 1; }
+
+    .pipeline {
+      display: flex;
+      align-items: stretch;
+      padding: 18px 20px;
+      gap: 0;
+      min-width: max-content;
+    }
+    .agent-node {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-muted);
+      padding: 10px 14px;
+      min-width: 140px;
+      min-height: 64px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+    .agent-node .agent-label {
+      font-weight: 600;
+    }
+    .agent-node .agent-role {
+      font-size: 10px;
+      color: var(--fg-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 2px;
+    }
+
+    .hop-link {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: center;
+      min-width: 200px;
+      padding: 0 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: inherit;
+      font: inherit;
+    }
+    .hop-link:focus { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+    .hop-arrow {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 8px;
+    }
+    .hop-arrow .arrow-line {
+      flex: 1;
+      height: 2px;
+      background: var(--pass-fg);
+    }
+    .hop-arrow .arrow-head {
+      width: 0;
+      height: 0;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      border-left: 9px solid var(--pass-fg);
+    }
+    .hop-link[data-status="warn"] .arrow-line { background: var(--warn-fg); }
+    .hop-link[data-status="warn"] .arrow-head { border-left-color: var(--warn-fg); }
+    .hop-link[data-status="fail"] .arrow-line { background: var(--fail-fg); }
+    .hop-link[data-status="fail"] .arrow-head { border-left-color: var(--fail-fg); }
+
+    .hop-link .hop-meta {
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--fg-muted);
+      gap: 8px;
+    }
+    .hop-link .hop-status-pill {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 1px solid;
+    }
+    .hop-link[data-status="pass"] .hop-status-pill { background: var(--pass-bg); color: var(--pass-fg); border-color: var(--pass-bd); }
+    .hop-link[data-status="warn"] .hop-status-pill { background: var(--warn-bg); color: var(--warn-fg); border-color: var(--warn-bd); }
+    .hop-link[data-status="fail"] .hop-status-pill { background: var(--fail-bg); color: var(--fail-fg); border-color: var(--fail-bd); }
+
+    .hop-link:hover .arrow-line,
+    .hop-link:focus .arrow-line { height: 3px; }
+
+    table.hops {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+    table.hops th, table.hops td {
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border-muted);
+      vertical-align: top;
+    }
+    table.hops thead th {
+      background: var(--bg-muted);
+      color: var(--fg-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+    }
+    table.hops tbody tr:last-child td { border-bottom: none; }
+    table.hops tbody tr.hop-row:hover { background: var(--bg-muted); cursor: pointer; }
+    table.hops tbody tr.hop-row:focus { outline: 2px solid var(--accent); outline-offset: -2px; }
+    table.hops .status-pill {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 1px solid;
+    }
+    table.hops .status-pill.pass { background: var(--pass-bg); color: var(--pass-fg); border-color: var(--pass-bd); }
+    table.hops .status-pill.warn { background: var(--warn-bg); color: var(--warn-fg); border-color: var(--warn-bd); }
+    table.hops .status-pill.fail { background: var(--fail-bg); color: var(--fail-fg); border-color: var(--fail-bd); }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(31, 35, 40, 0.5);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 20px 20px 20px;
+      z-index: 100;
+      overflow-y: auto;
+    }
+    .modal {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 100%;
+      max-width: 960px;
+      box-shadow: 0 8px 24px rgba(31, 35, 40, 0.15);
+    }
+    .modal-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .modal-header h3 {
+      margin: 0;
+      font-size: 14px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    .modal-close {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      color: var(--fg-muted);
+    }
+    .modal-close:hover { background: var(--bg-sunken); }
+    .modal-body { padding: 16px 20px; }
+    .modal-body > section { margin-bottom: 18px; }
+    .modal-body > section:last-child { margin-bottom: 0; }
+    .modal-body h4 {
+      margin: 0 0 8px 0;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--fg-muted);
+      font-weight: 600;
+    }
+
+    .verdict {
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid;
+    }
+    .verdict.pass { background: var(--pass-bg); color: var(--pass-fg); border-color: var(--pass-bd); }
+    .verdict.warn { background: var(--warn-bg); color: var(--warn-fg); border-color: var(--warn-bd); }
+    .verdict.fail { background: var(--fail-bg); color: var(--fail-fg); border-color: var(--fail-bd); }
+    .verdict .verdict-label {
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    table.detail {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--border-muted);
+      border-radius: 6px;
+      overflow: hidden;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+    table.detail th, table.detail td {
+      text-align: left;
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border-muted);
+      vertical-align: top;
+    }
+    table.detail thead th {
+      background: var(--bg-muted);
+      color: var(--fg-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 0.05em;
+    }
+    table.detail tbody tr:last-child td { border-bottom: none; }
+
+    table.diff td.value {
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+    table.diff td.missing {
+      color: var(--fg-subtle);
+      font-style: italic;
+    }
+    table.diff tr.status-equal td.value { color: var(--fg-muted); }
+    table.diff tr.status-changed td.src,
+    table.diff tr.status-changed td.tgt { background: var(--change-bg); color: var(--change-fg); }
+    table.diff tr.status-dropped td.src { background: var(--drop-bg); color: var(--drop-fg); }
+    table.diff tr.status-dropped td.tgt { background: var(--bg-muted); }
+    table.diff tr.status-added td.tgt { background: var(--add-bg); color: var(--add-fg); }
+    table.diff tr.status-added td.src { background: var(--bg-muted); }
+    table.diff td .row-status {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    table.diff tr.status-dropped .row-status { color: var(--drop-fg); }
+    table.diff tr.status-changed .row-status { color: var(--change-fg); }
+    table.diff tr.status-added .row-status { color: var(--add-fg); }
+    table.diff tr.status-equal .row-status { color: var(--fg-subtle); }
+    table.diff button.expand-btn {
+      display: inline-block;
+      margin-left: 4px;
+      padding: 0 4px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-muted);
+      color: var(--fg-muted);
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    table.diff button.expand-btn:hover { background: var(--bg-sunken); }
+
+    table.rules tr.passed td.rule-name { color: var(--pass-fg); }
+    table.rules tr.failed td.rule-name { color: var(--fail-fg); font-weight: 600; }
+    table.rules td.rule-msg { color: var(--fail-fg); }
+
+    table.scores td.field-score.passed { color: var(--pass-fg); }
+    table.scores td.field-score.failed { color: var(--fail-fg); font-weight: 600; }
+
+    .impact-box {
+      background: var(--bg-muted);
+      border-left: 3px solid var(--fail-fg);
+      padding: 10px 12px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--fg);
+      white-space: pre-wrap;
+    }
+    .impact-box.pass {
+      border-left-color: var(--pass-fg);
+      color: var(--fg-muted);
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 14px 20px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--fg-muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    [hidden] { display: none !important; }
+
+    @media (max-width: 640px) {
+      main { padding: 12px; }
+      .stat .stat-value { font-size: 18px; }
+      .modal-overlay { padding: 20px 8px; }
+      .modal-body { padding: 12px; }
+      .modal-header { padding: 10px 14px; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#trace-view">Skip to trace view</a>
+  <header class="topbar" role="banner">
+    <h1>
+      <span class="brand-mark" aria-hidden="true"></span>
+      Precept Observatory
+    </h1>
+    <div class="topbar-meta" id="topbar-meta" aria-live="polite">—</div>
+  </header>
+
+  <main id="trace-view" role="main">
+    <section class="upload-bar" id="upload-bar" aria-label="Load a trace file">
+      <div>
+        <strong style="color: var(--fg);">Load trace</strong> &middot;
+        drag-and-drop a <code>*.json</code> file here, or
+        <label for="file-input">choose a file</label>
+        <input type="file" id="file-input" accept="application/json,.json" />
+        <span style="margin-left: 8px;">— files are read locally and never uploaded.</span>
+      </div>
+      <div>
+        <button type="button" id="reload-default-btn" class="modal-close" aria-label="Reload default demo trace">
+          Reload default
+        </button>
+      </div>
+    </section>
+
+    <section id="banner-region" aria-live="polite" hidden></section>
+
+    <section id="empty-state">
+      <div class="banner info" role="status">
+        Loading <code>demo_trace.json</code>&hellip;
+      </div>
+    </section>
+
+    <section id="trace-content" hidden aria-labelledby="trace-content-heading">
+      <h2 id="trace-content-heading">Summary</h2>
+      <div class="summary-grid" id="summary-grid"></div>
+    </section>
+
+    <section id="pipeline-section" hidden aria-labelledby="pipeline-heading">
+      <h2 id="pipeline-heading">Pipeline</h2>
+      <div class="pipeline-wrap" id="pipeline-wrap">
+        <div class="pipeline" id="pipeline"></div>
+        <div class="scroll-hint" aria-hidden="true">&larr; scroll &rarr;</div>
+      </div>
+    </section>
+
+    <section id="hops-section" hidden aria-labelledby="hops-heading">
+      <h2 id="hops-heading">Handoffs</h2>
+      <table class="hops" aria-describedby="hops-heading">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Source</th>
+            <th scope="col">Target</th>
+            <th scope="col">Contract</th>
+            <th scope="col">Score</th>
+            <th scope="col">Rules</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody id="hops-tbody"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer role="contentinfo">
+    <div id="footer-version">Precept v?</div>
+    <div>
+      <a href="https://github.com/gianpremrajaram/precept" rel="noopener">View source on GitHub</a>
+    </div>
+  </footer>
+
+  <div class="modal-overlay" id="modal-overlay" hidden role="presentation"></div>
+
+  <script>
+    "use strict";
+
+    // -------- constants --------
+    const SUPPORTED_SCHEMA = "0.1";
+    const TRUNCATE_AT = 120;
+    const DEFAULT_TRACE_URL = "demo_trace.json";
+
+    // -------- DOM refs --------
+    const els = {
+      banner: document.getElementById("banner-region"),
+      empty: document.getElementById("empty-state"),
+      content: document.getElementById("trace-content"),
+      pipelineSection: document.getElementById("pipeline-section"),
+      pipelineWrap: document.getElementById("pipeline-wrap"),
+      pipeline: document.getElementById("pipeline"),
+      hopsSection: document.getElementById("hops-section"),
+      hopsTbody: document.getElementById("hops-tbody"),
+      summaryGrid: document.getElementById("summary-grid"),
+      topbarMeta: document.getElementById("topbar-meta"),
+      footerVersion: document.getElementById("footer-version"),
+      modalOverlay: document.getElementById("modal-overlay"),
+      uploadBar: document.getElementById("upload-bar"),
+      fileInput: document.getElementById("file-input"),
+      reloadDefaultBtn: document.getElementById("reload-default-btn"),
+    };
+
+    // -------- escaping --------
+    function escapeHtml(s) {
+      if (s === null || s === undefined) return "";
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    // -------- banners --------
+    function showBanner(kind, msg) {
+      els.banner.hidden = false;
+      els.banner.innerHTML = `<div class="banner ${kind}" role="status">${msg}</div>`;
+    }
+    function clearBanner() {
+      els.banner.hidden = true;
+      els.banner.innerHTML = "";
+    }
+
+    // -------- trace loading --------
+    async function loadDefault() {
+      els.empty.hidden = false;
+      els.empty.innerHTML = `<div class="banner info" role="status">Loading <code>${DEFAULT_TRACE_URL}</code>&hellip;</div>`;
+      try {
+        const res = await fetch(DEFAULT_TRACE_URL, { cache: "no-cache" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const trace = await res.json();
+        renderTrace(trace, DEFAULT_TRACE_URL);
+      } catch (err) {
+        showLoadError(err);
+      }
+    }
+
+    function showLoadError(err) {
+      const msg = String(err && err.message ? err.message : err);
+      const fromFile = location.protocol === "file:";
+      const detail = fromFile
+        ? `Browsers block <code>fetch()</code> on <code>file://</code>. Serve the directory with <code>python -m http.server</code> from <code>docs/</code>, or drop a trace file above.`
+        : `Run <code>python examples/demo.py --output docs/demo_trace.json</code>, then refresh. Or drop a trace file above.`;
+      els.empty.hidden = false;
+      els.empty.innerHTML = `
+        <div class="banner fail" role="status">
+          Could not load <code>${escapeHtml(DEFAULT_TRACE_URL)}</code>: ${escapeHtml(msg)}.<br>
+          ${detail}
+        </div>`;
+      hideTraceUI();
+    }
+
+    function hideTraceUI() {
+      els.content.hidden = true;
+      els.pipelineSection.hidden = true;
+      els.hopsSection.hidden = true;
+    }
+
+    function readFileAsTrace(file) {
+      const reader = new FileReader();
+      reader.onerror = () => showLoadError(reader.error || new Error("file read failed"));
+      reader.onload = () => {
+        try {
+          const trace = JSON.parse(String(reader.result));
+          renderTrace(trace, file.name);
+        } catch (err) {
+          showLoadError(new Error(`${file.name} is not valid JSON: ${err && err.message}`));
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // -------- rendering --------
+    function renderTrace(trace, sourceLabel) {
+      clearBanner();
+      els.empty.hidden = true;
+
+      if (!trace || typeof trace !== "object" || !Array.isArray(trace.hops)) {
+        showBanner("fail", "Trace JSON is missing top-level <code>hops[]</code> array.");
+        hideTraceUI();
+        return;
+      }
+
+      if (trace.schema_version && trace.schema_version !== SUPPORTED_SCHEMA) {
+        showBanner(
+          "warn",
+          `This viewer supports trace <code>schema_version=${SUPPORTED_SCHEMA}</code>; ` +
+            `the loaded file declares <code>${escapeHtml(trace.schema_version)}</code>. ` +
+            `Some fields may not render.`
+        );
+      }
+
+      const hops = trace.hops;
+      const total = hops.length;
+      const failed = hops.filter((h) => h.violation_event && h.violation_event.passed === false).length;
+      const warned = hops.filter(
+        (h) => h.violation_event && h.violation_event.passed === false && h.violation_event.mode === "warn"
+      ).length;
+      const blocked = failed - warned;
+      const passed = total - failed;
+
+      const generatedAt = trace.generated_at_iso || "";
+      const traceName = trace.trace_name || "(unnamed)";
+      const precept = trace.precept_version || "?";
+
+      els.topbarMeta.textContent = `trace=${traceName} · ${total} handoffs · generated ${generatedAt} · source=${sourceLabel}`;
+      els.footerVersion.textContent = `Precept v${precept} · schema ${trace.schema_version || "?"}`;
+
+      renderSummary({ total, passed, failed, blocked, warned });
+      renderPipeline(hops);
+      renderHopsTable(hops);
+    }
+
+    function renderSummary(s) {
+      const cards = [
+        { label: "Handoffs", value: s.total, cls: "" },
+        { label: "Passed", value: s.passed, cls: "pass" },
+        { label: "Failed", value: s.failed, cls: s.failed ? "fail" : "" },
+        { label: "Blocked", value: s.blocked, cls: s.blocked ? "fail" : "" },
+        { label: "Warn", value: s.warned, cls: s.warned ? "fail" : "" },
+      ];
+      els.summaryGrid.innerHTML = cards
+        .map(
+          (c) =>
+            `<div class="stat ${c.cls}">
+              <div class="stat-label">${escapeHtml(c.label)}</div>
+              <div class="stat-value">${escapeHtml(c.value)}</div>
+            </div>`
+        )
+        .join("");
+      els.content.hidden = false;
+    }
+
+    function statusOf(hop) {
+      const ev = hop.violation_event || {};
+      if (ev.passed !== false) return "pass";
+      return ev.mode === "warn" ? "warn" : "fail";
+    }
+
+    function renderPipeline(hops) {
+      if (hops.length === 0) {
+        els.pipelineSection.hidden = true;
+        return;
+      }
+      const nodes = [];
+      hops.forEach((hop, i) => {
+        const meta = hop.handoff_metadata || {};
+        if (i === 0) {
+          nodes.push({ type: "agent", label: meta.source_agent || "?", role: "source" });
+        }
+        nodes.push({ type: "hop", hop, index: i });
+        nodes.push({ type: "agent", label: meta.target_agent || "?", role: i === hops.length - 1 ? "sink" : "intermediate" });
+      });
+
+      const html = nodes
+        .map((n, idx) => {
+          if (n.type === "agent") {
+            return `
+              <div class="agent-node" role="group" aria-label="Agent ${escapeHtml(n.label)}">
+                <div class="agent-label">${escapeHtml(n.label)}</div>
+                <div class="agent-role">${escapeHtml(n.role)}</div>
+              </div>`;
+          }
+          const status = statusOf(n.hop);
+          const score = (n.hop.violation_event && n.hop.violation_event.score_result)
+            ? Number(n.hop.violation_event.score_result.overall_score).toFixed(3)
+            : "—";
+          const contract = (n.hop.handoff_metadata && n.hop.handoff_metadata.contract_name) || "";
+          const mode = (n.hop.violation_event && n.hop.violation_event.mode) || "";
+          const ariaStatus = status === "pass" ? "passed" : status === "warn" ? "failed in warn mode" : "blocked";
+          return `
+            <button type="button" class="hop-link" data-status="${status}" data-hop-index="${n.index}"
+                    aria-label="Handoff ${n.index + 1}: ${escapeHtml(contract)} (${ariaStatus}). Open details.">
+              <div class="hop-arrow" aria-hidden="true">
+                <div class="arrow-line"></div>
+                <div class="arrow-head"></div>
+              </div>
+              <div class="hop-meta">
+                <span class="hop-status-pill">${escapeHtml(status)}${mode === "warn" ? " (warn)" : ""}</span>
+                <span>score ${escapeHtml(score)}</span>
+              </div>
+              <div class="hop-meta" style="margin-top:2px;">
+                <span style="color: var(--fg-muted); overflow: hidden; text-overflow: ellipsis;">${escapeHtml(contract)}</span>
+              </div>
+            </button>`;
+        })
+        .join("");
+
+      els.pipeline.innerHTML = html;
+      els.pipelineSection.hidden = false;
+
+      // Bind clicks
+      els.pipeline.querySelectorAll(".hop-link").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const idx = Number(btn.getAttribute("data-hop-index"));
+          openModal(hops[idx], idx, hops.length, btn);
+        });
+      });
+
+      // Toggle scroll hint after layout
+      requestAnimationFrame(() => {
+        const w = els.pipelineWrap;
+        if (w.scrollWidth > w.clientWidth + 4) {
+          w.classList.add("scrollable");
+        } else {
+          w.classList.remove("scrollable");
+        }
+      });
+    }
+
+    function renderHopsTable(hops) {
+      if (hops.length === 0) {
+        els.hopsSection.hidden = true;
+        return;
+      }
+      const rows = hops
+        .map((hop, i) => {
+          const meta = hop.handoff_metadata || {};
+          const ev = hop.violation_event || {};
+          const score = ev.score_result ? Number(ev.score_result.overall_score).toFixed(3) : "—";
+          const status = statusOf(hop);
+          const rulesHtml = (ev.rule_results || [])
+            .map((r) => {
+              const ok = r.passed;
+              return `<span title="${escapeHtml(r.rule_name)}" style="color: ${ok ? "var(--pass-fg)" : "var(--fail-fg)"};">${ok ? "&#x2713;" : "&#x2717;"}&nbsp;${escapeHtml(r.rule_name)}</span>`;
+            })
+            .join("&nbsp;&nbsp;");
+          return `
+            <tr class="hop-row" data-hop-index="${i}" tabindex="0"
+                aria-label="Handoff ${i + 1}: ${escapeHtml(meta.contract_name || "")} ${status}. Press Enter for details.">
+              <td>${i + 1}</td>
+              <td>${escapeHtml(meta.source_agent || "")}</td>
+              <td>${escapeHtml(meta.target_agent || "")}</td>
+              <td>${escapeHtml(meta.contract_name || "")}</td>
+              <td>${escapeHtml(score)}</td>
+              <td>${rulesHtml}</td>
+              <td><span class="status-pill ${status}">${escapeHtml(status)}</span></td>
+            </tr>`;
+        })
+        .join("");
+      els.hopsTbody.innerHTML = rows;
+      els.hopsSection.hidden = false;
+      els.hopsTbody.querySelectorAll("tr.hop-row").forEach((tr) => {
+        tr.addEventListener("click", () => {
+          const idx = Number(tr.getAttribute("data-hop-index"));
+          openModal(hops[idx], idx, hops.length, tr);
+        });
+        tr.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            const idx = Number(tr.getAttribute("data-hop-index"));
+            openModal(hops[idx], idx, hops.length, tr);
+          }
+        });
+      });
+    }
+
+    // -------- modal --------
+    let activeModalTrigger = null;
+    let keydownHandler = null;
+
+    function openModal(hop, index, total, triggerEl) {
+      activeModalTrigger = triggerEl || null;
+      const meta = hop.handoff_metadata || {};
+      const ev = hop.violation_event || {};
+      const status = statusOf(hop);
+      const verdictText = status === "pass"
+        ? "PASS"
+        : status === "warn"
+        ? "WARN (violations detected; warn mode)"
+        : "BLOCK (violations detected; block mode)";
+
+      const failedRules = (ev.rule_results || []).filter((r) => !r.passed);
+      const verdictSummary = status === "pass"
+        ? "All rules passed and every per-field score cleared its threshold."
+        : `${failedRules.length} rule(s) failed: ${failedRules.map((r) => r.rule_name).join(", ")}.`;
+
+      const diffHtml = renderDiff(hop.source_payload || {}, hop.target_payload || {});
+      const rulesHtml = renderRules(ev.rule_results || []);
+      const scoresHtml = renderScores(ev.score_result || null);
+      const impactHtml = renderImpact(hop.impact_summary, status);
+
+      const modalHtml = `
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
+          <div class="modal-header">
+            <h3 id="modal-title">Handoff ${index + 1}/${total} · ${escapeHtml(meta.source_agent || "?")} &rarr; ${escapeHtml(meta.target_agent || "?")} · ${escapeHtml(meta.contract_name || "?")}</h3>
+            <button type="button" class="modal-close" id="modal-close-btn" aria-label="Close details (Esc)">Close</button>
+          </div>
+          <div class="modal-body">
+            <section>
+              <div class="verdict ${status}" role="status">
+                <span class="verdict-label">${escapeHtml(verdictText)}</span>
+                <span>${escapeHtml(verdictSummary)}</span>
+              </div>
+            </section>
+            <section aria-labelledby="diff-h">
+              <h4 id="diff-h">Field diff (source &rarr; target)</h4>
+              ${diffHtml}
+            </section>
+            <section aria-labelledby="rules-h">
+              <h4 id="rules-h">Rules</h4>
+              ${rulesHtml}
+            </section>
+            <section aria-labelledby="scores-h">
+              <h4 id="scores-h">Per-field scores</h4>
+              ${scoresHtml}
+            </section>
+            <section aria-labelledby="impact-h">
+              <h4 id="impact-h">Impact</h4>
+              ${impactHtml}
+            </section>
+            <section aria-labelledby="meta-h">
+              <h4 id="meta-h">Event metadata</h4>
+              ${renderEventMeta(ev, meta)}
+            </section>
+          </div>
+        </div>`;
+
+      els.modalOverlay.innerHTML = modalHtml;
+      els.modalOverlay.hidden = false;
+
+      // Wire close + outside click + ESC + focus trap
+      const modal = els.modalOverlay.querySelector(".modal");
+      const closeBtn = document.getElementById("modal-close-btn");
+      closeBtn.addEventListener("click", closeModal);
+      els.modalOverlay.addEventListener("click", overlayClickHandler);
+
+      keydownHandler = (e) => {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          closeModal();
+        } else if (e.key === "Tab") {
+          trapFocus(e, modal);
+        }
+      };
+      document.addEventListener("keydown", keydownHandler);
+
+      // Wire expand-on-click for truncated cells
+      els.modalOverlay.querySelectorAll("button.expand-btn").forEach((b) => {
+        b.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const id = b.getAttribute("data-target");
+          const target = document.getElementById(id);
+          if (!target) return;
+          const full = target.getAttribute("data-full");
+          target.textContent = full;
+          b.remove();
+        });
+      });
+
+      // Focus the modal
+      modal.focus();
+    }
+
+    function overlayClickHandler(e) {
+      if (e.target === els.modalOverlay) closeModal();
+    }
+
+    function closeModal() {
+      els.modalOverlay.hidden = true;
+      els.modalOverlay.innerHTML = "";
+      els.modalOverlay.removeEventListener("click", overlayClickHandler);
+      if (keydownHandler) {
+        document.removeEventListener("keydown", keydownHandler);
+        keydownHandler = null;
+      }
+      if (activeModalTrigger && typeof activeModalTrigger.focus === "function") {
+        activeModalTrigger.focus();
+      }
+      activeModalTrigger = null;
+    }
+
+    function trapFocus(e, container) {
+      const focusables = container.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
+    // -------- diff rendering --------
+    function valueToDisplay(v) {
+      if (v === null || v === undefined) return "";
+      if (Array.isArray(v)) return v.map((x) => valueToDisplay(x)).join(", ");
+      if (typeof v === "object") {
+        try {
+          return JSON.stringify(v);
+        } catch {
+          return String(v);
+        }
+      }
+      return String(v);
+    }
+
+    function deepEqualScalarish(a, b) {
+      if (a === b) return true;
+      if (Array.isArray(a) && Array.isArray(b)) {
+        if (a.length !== b.length) return false;
+        for (let i = 0; i < a.length; i++) {
+          if (!deepEqualScalarish(a[i], b[i])) return false;
+        }
+        return true;
+      }
+      if (a && b && typeof a === "object" && typeof b === "object") {
+        const ak = Object.keys(a).sort();
+        const bk = Object.keys(b).sort();
+        if (ak.length !== bk.length) return false;
+        for (let i = 0; i < ak.length; i++) {
+          if (ak[i] !== bk[i]) return false;
+          if (!deepEqualScalarish(a[ak[i]], b[ak[i]])) return false;
+        }
+        return true;
+      }
+      return false;
+    }
+
+    let cellSeq = 0;
+    function renderCell(value, isMissing) {
+      cellSeq += 1;
+      if (isMissing) {
+        return `<td class="value missing">(missing)</td>`;
+      }
+      const full = valueToDisplay(value);
+      if (full.length <= TRUNCATE_AT) {
+        return `<td class="value">${escapeHtml(full)}</td>`;
+      }
+      const id = `cell-${cellSeq}`;
+      const shown = full.slice(0, TRUNCATE_AT) + "…";
+      return `<td class="value">
+        <span id="${id}" data-full="${escapeHtml(full)}">${escapeHtml(shown)}</span>
+        <button type="button" class="expand-btn" data-target="${id}" aria-label="Show full value">show full</button>
+      </td>`;
+    }
+
+    function renderDiff(src, tgt) {
+      const keys = Array.from(new Set([...Object.keys(src), ...Object.keys(tgt)])).sort();
+      if (keys.length === 0) {
+        return `<div class="banner info">No payload fields to compare.</div>`;
+      }
+      const rows = keys
+        .map((k) => {
+          const hasS = Object.prototype.hasOwnProperty.call(src, k);
+          const hasT = Object.prototype.hasOwnProperty.call(tgt, k);
+          let status;
+          if (hasS && hasT) {
+            status = deepEqualScalarish(src[k], tgt[k]) ? "equal" : "changed";
+          } else if (hasS) {
+            status = "dropped";
+          } else {
+            status = "added";
+          }
+          const srcCell = renderCell(hasS ? src[k] : null, !hasS);
+          const tgtCell = renderCell(hasT ? tgt[k] : null, !hasT);
+          const srcClass = `src ${status === "dropped" ? "" : ""}`;
+          const tgtClass = `tgt ${status === "dropped" ? "" : ""}`;
+          const tagged = (cell, cls) => cell.replace('class="value', `class="value ${cls}`);
+          return `<tr class="status-${status}">
+            <td><code>${escapeHtml(k)}</code></td>
+            ${tagged(srcCell, "src")}
+            ${tagged(tgtCell, "tgt")}
+            <td><span class="row-status">${escapeHtml(status)}</span></td>
+          </tr>`;
+        })
+        .join("");
+      return `<table class="detail diff" aria-label="Field diff">
+        <thead><tr><th scope="col">Field</th><th scope="col">Source</th><th scope="col">Target</th><th scope="col">Status</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+    }
+
+    function renderRules(rules) {
+      if (rules.length === 0) return `<div class="banner info">No rule results.</div>`;
+      const rows = rules
+        .map((r) => {
+          const cls = r.passed ? "passed" : "failed";
+          return `<tr class="${cls}">
+            <td class="rule-name">${escapeHtml(r.rule_name)}</td>
+            <td>${r.passed ? "pass" : "fail"}</td>
+            <td class="rule-msg">${escapeHtml(r.violation_message || "")}</td>
+          </tr>`;
+        })
+        .join("");
+      return `<table class="detail rules" aria-label="Rule results">
+        <thead><tr><th scope="col">Rule</th><th scope="col">Status</th><th scope="col">Message</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+    }
+
+    function renderScores(scoreResult) {
+      if (!scoreResult) return `<div class="banner info">No score result.</div>`;
+      const fs = scoreResult.field_scores || [];
+      const fsRows = fs
+        .map((f) => {
+          const cls = f.passed ? "passed" : "failed";
+          return `<tr>
+            <td>${escapeHtml(f.field_name)}</td>
+            <td class="field-score ${cls}">${Number(f.score).toFixed(3)}</td>
+            <td>${escapeHtml(f.method)}</td>
+            <td>${f.passed ? "pass" : "fail"}</td>
+          </tr>`;
+        })
+        .join("");
+      return `<table class="detail scores" aria-label="Per-field scores">
+        <thead><tr><th scope="col">Field</th><th scope="col">Score</th><th scope="col">Method</th><th scope="col">Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>overall</strong></td>
+            <td class="field-score"><strong>${Number(scoreResult.overall_score).toFixed(3)}</strong></td>
+            <td>${escapeHtml(scoreResult.scorer_name || "")}</td>
+            <td>${escapeHtml(scoreResult.scorer_version || "")}</td>
+          </tr>
+          ${fsRows}
+        </tbody>
+      </table>`;
+    }
+
+    function renderImpact(impact, status) {
+      if (status === "pass") {
+        return `<div class="impact-box pass">No downstream impact — handoff passed.</div>`;
+      }
+      if (!impact) {
+        return `<div class="impact-box">(no impact summary attached)</div>`;
+      }
+      return `<div class="impact-box">${escapeHtml(impact)}</div>`;
+    }
+
+    function renderEventMeta(ev, meta) {
+      const rows = [
+        ["event_id", ev.event_id],
+        ["contract_name", ev.contract_name],
+        ["contract_version", ev.contract_version],
+        ["mode", ev.mode],
+        ["passed", String(ev.passed)],
+        ["triggered_at_iso", ev.triggered_at_iso],
+        ["schema_version", ev.schema_version],
+        ["handoff_timestamp_iso", meta.timestamp_iso],
+      ]
+        .map(([k, v]) => `<tr><td><code>${escapeHtml(k)}</code></td><td>${escapeHtml(v ?? "")}</td></tr>`)
+        .join("");
+      return `<table class="detail" aria-label="Event metadata">
+        <thead><tr><th scope="col">Key</th><th scope="col">Value</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+    }
+
+    // -------- file drop + picker --------
+    function bindUpload() {
+      ["dragenter", "dragover"].forEach((ev) => {
+        els.uploadBar.addEventListener(ev, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          els.uploadBar.classList.add("dragover");
+        });
+      });
+      ["dragleave", "drop"].forEach((ev) => {
+        els.uploadBar.addEventListener(ev, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          els.uploadBar.classList.remove("dragover");
+        });
+      });
+      els.uploadBar.addEventListener("drop", (e) => {
+        const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        if (file) readFileAsTrace(file);
+      });
+      els.fileInput.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) readFileAsTrace(file);
+        e.target.value = ""; // allow reloading same file
+      });
+      els.reloadDefaultBtn.addEventListener("click", loadDefault);
+    }
+
+    // -------- init --------
+    document.addEventListener("DOMContentLoaded", () => {
+      bindUpload();
+      loadDefault();
+    });
+  </script>
+</body>
+</html>
