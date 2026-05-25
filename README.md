@@ -204,7 +204,7 @@ The contract layer is the only position where degraded context is caught before 
 
 ## Alignment: Collective Flourishing
 
-ARIA identifies *systemic fog*, the opacity that prevents societies from navigating the future, as a defining barrier to collective flourishing. The foundational technologies for modelling, simulating, and coordinating are maturing, but the **integration layer** connecting them remains under-explored.
+*Systemic fog*, the opacity that prevents societies from navigating the future, as a defining barrier to collective flourishing. The foundational technologies for modelling, simulating, and coordinating are maturing, but the **integration layer** connecting them remains under-explored.
 
 This framework operates directly at that integration layer:
 
@@ -215,7 +215,7 @@ This framework operates directly at that integration layer:
 
 ## Status
 
-This framework is the subject of an active research programme combining an MSc dissertation (UCL, completing August 2026) with a fellowship application to Encode: AI for Science (Cohort 2, backed by Pillar VC and ARIA). The Contract Layer and MI estimation engine form the first build phase, followed by the Coordination Observatory and full MARL experimental validation.
+This framework is the subject of an active research programme combining an MSc dissertation (UCL, completing August 2026). The Contract Layer and MI estimation engine form the first build phase, followed by the Coordination Observatory and full MARL experimental validation.
 
 | Component | State | Notes |
 |-----------|-------|-------|
