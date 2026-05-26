@@ -33,7 +33,7 @@ Every existing tool operates **downstream** of this problem:
 | Orchestration | LangGraph conditional edges, AutoGen | Routes control flow between agents | Structural |
 | **Information Contracts** | **This framework** | **Validates what agents *receive*** | **Upstream (precondition)** |
 
-The upstream boundary is the only position where information loss can be **prevented**, not merely diagnosed.
+The upstream boundary is the only position where information loss can be **prevented**.
 
 ## Architecture
 
@@ -177,7 +177,7 @@ Without information contracts, compressed uncertainty at the first handoff silen
 
 With an information contract at each boundary, this narrowing is detected and surfaced before it propagates.
 
-## Why Upstream, Not Downstream
+## Why Upstream
 
 The existing ecosystem validates **outputs** or traces **execution**. Information contracts validate **inputs**. These are complementary positions in the agent execution stack:
 
