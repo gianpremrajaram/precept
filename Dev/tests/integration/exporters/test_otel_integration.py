@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Integration test: ``OTelExporter`` wired into a real ``Evaluator``
 with an ``InMemorySpanExporter`` collector.
 

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Tests for ``precept.errors`` (PRC-006 + PRC-013).
 
 Covers ``HandoffBlockedError`` introduced in PRC-013 (carrier

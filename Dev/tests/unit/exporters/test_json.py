@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Tests for ``precept.exporters.json_exporter`` (PRC-021).
 
 Covers the JSONL line shape, mode semantics, parent-directory creation,

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Integration test: decorator and YAML frontends produce an identical IR.
 
 PRC-008 Acceptance Criteria: "YAML-loaded contract and decorator-declared

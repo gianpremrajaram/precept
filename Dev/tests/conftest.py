@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Shared pytest fixtures for the Precept test suite.
 
 Lives at the ``tests/`` root (not ``tests/fixtures/``) so the trace fixtures

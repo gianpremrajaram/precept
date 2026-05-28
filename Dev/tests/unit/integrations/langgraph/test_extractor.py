@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for ``precept.integrations.langgraph.extractor`` (PRC-016).
 
 Covers the two state-shape branches (mapping vs attribute), the

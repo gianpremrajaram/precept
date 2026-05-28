@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """OpenTelemetry GenAI exporter (PRC-020).
 
 Emits one ``gen_ai.evaluation.result`` event per :class:`ViolationEvent`

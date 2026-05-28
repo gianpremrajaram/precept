@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Exporter ABC plus the two built-in concrete sinks.
 
 The :class:`Exporter` ABC is the integration surface between the

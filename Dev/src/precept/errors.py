@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Precept-specific exception types.
 
 Every public API that performs validation wraps third-party exceptions

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Scoring engine surface.
 
 This package hosts the abstract ``Scorer`` interface and its result types

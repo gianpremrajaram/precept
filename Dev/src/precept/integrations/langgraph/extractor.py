@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Contracted-field extractor: LangGraph state -> ``HandoffPayload`` (PRC-016).
 
 Precept evaluates handoffs against contracts, and a contract names

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Tests for ``precept.types.ViolationEvent`` (PRC-013).
 
 Covers the required fields, the timestamp validator (parity with

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Integration test: both example YAML contracts load as distinct valid IRs.
 
 Matches PRC-007 Acceptance Criteria requirement: "loading both example

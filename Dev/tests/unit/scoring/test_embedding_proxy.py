@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for ``precept.scoring.embedding_proxy.EmbeddingProxy`` (PRC-011).
 
 Covers: model-loading discipline (constructor-time + ``_skip_model_load``

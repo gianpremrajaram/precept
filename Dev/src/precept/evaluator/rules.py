@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Per-field rule evaluators (PRC-012).
 
 Three pure functions check structural properties of a handoff payload

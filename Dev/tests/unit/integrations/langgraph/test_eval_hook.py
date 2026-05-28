@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for ``precept.integrations.langgraph.eval_hook`` (PRC-014).
 
 Covers the six AC cases (valid contract returns event; block+fail

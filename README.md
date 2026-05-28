@@ -3,6 +3,7 @@
 [![CI](https://github.com/gianpremrajaram/precept/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/gianpremrajaram/precept/actions/workflows/ci.yml)
 [![Pages](https://github.com/gianpremrajaram/precept/actions/workflows/pages.yml/badge.svg?branch=main)](https://gianpremrajaram.github.io/precept/)
 [![Status: research preview](https://img.shields.io/badge/status-research%20preview-blueviolet)](#status)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
 > **Research preview (v0).** APIs are intentionally unstable and will change before v1. The framework is developed alongside an MSc dissertation at UCL (completing August 2026). Suitable for research, experimentation, and early integration feedback; not yet recommended for production.
 

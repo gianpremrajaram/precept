@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Subprocess-driven integration tests for the PRC-019 demo runner.
 
 Exercises ``examples/demo.py`` exactly as a reviewer would: invokes it

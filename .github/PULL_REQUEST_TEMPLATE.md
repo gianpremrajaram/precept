@@ -22,3 +22,4 @@
 - [ ] `Dev/CHANGELOG.md` updated under `[Unreleased]` (for user-visible changes)
 - [ ] Any scope-creep ideas captured as follow-up issues, not merged into this PR
 - [ ] Public-API additions reviewed against `CLAUDE.md` and `ISSUES.md` (PRC-026) where relevant
+- [ ] Every commit is signed off (`git commit -s`) per the [DCO](../DCO)

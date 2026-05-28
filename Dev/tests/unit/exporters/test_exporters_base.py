@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Tests for ``precept.exporters.base`` (PRC-013).
 
 Covers the :class:`Exporter` ABC's ``__init_subclass__`` enforcement

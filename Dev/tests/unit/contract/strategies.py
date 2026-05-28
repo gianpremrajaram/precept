@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Shared Hypothesis strategies for contract-schema tests.
 
 These live next to the contract unit tests because pytest's default

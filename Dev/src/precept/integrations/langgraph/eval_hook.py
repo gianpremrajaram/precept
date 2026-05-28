@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Pure handoff-evaluation hook (PRC-014).
 
 ``evaluate_handoff`` is the durable, framework-API-independent surface of

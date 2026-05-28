@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Precept demo runner -- single-shot contract-engine demonstration (PRC-019).
 
 Reads the committed fixture traces under ``examples/fixtures/``, evaluates

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Contract declaration surface.
 
 This package hosts the canonical IR (``schema``) and the parser modules

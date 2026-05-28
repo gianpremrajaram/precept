@@ -283,4 +283,10 @@ If a user request or emergent need implies one of these, open an issue against t
 
 ---
 
+## Acknowledgements
+
+The behavioural-discipline principles in the "Code style and architecture → Implementation discipline" section above — *surface assumptions before coding, minimum code that satisfies the criteria, surgical edits, orphan cleanup* — are adapted from [`multica-ai/andrej-karpathy-skills`](https://github.com/multica-ai/andrej-karpathy-skills), itself derived from [Andrej Karpathy's observations on LLM coding pitfalls](https://x.com/karpathy/status/2015883857489522876). The upstream repository carried no licence at the time of adoption; the borrowings here are in good faith on the basis of the upstream's publicly stated purpose of distribution. The remainder of this CLAUDE.md is project-specific and original to Precept.
+
+---
+
 *End of CLAUDE.md. Keep this file current as the repo evolves; stale operating guides are worse than no guide at all.*

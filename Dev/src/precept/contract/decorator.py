@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Decorator frontend: attaches a ``HandoffContract`` to a handoff function.
 
 One of two v0 frontends declared in ADR 0001 (the other is the YAML loader,

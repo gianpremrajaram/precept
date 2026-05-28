@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Plain JSON exporters: file (JSONL) and arbitrary text stream (PRC-021).
 
 The two concretes are the backup / optionality layer for the OTel

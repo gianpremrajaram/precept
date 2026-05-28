@@ -1,0 +1,27 @@
+Precept
+Copyright 2026 Gian Prem Rajaram
+
+This product includes software developed at
+the Precept project (https://github.com/gianpremrajaram/precept).
+
+Licensed under the Apache License, Version 2.0 (the "License");
+see LICENSE for the full text.
+
+---
+
+Acknowledgements
+
+CLAUDE.md, the developer-facing operating manual for AI coding agents
+working on this repository, adapts behavioural-discipline principles from:
+
+  multica-ai/andrej-karpathy-skills
+  https://github.com/multica-ai/andrej-karpathy-skills
+
+itself derived from Andrej Karpathy's public observations on LLM coding
+pitfalls:
+
+  https://x.com/karpathy/status/2015883857489522876
+
+The upstream repository carried no licence at the time of adoption; the
+borrowings are in good faith on the basis of its publicly stated purpose
+of distribution.

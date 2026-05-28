@@ -103,6 +103,20 @@ docs: document fail-open behaviour in evaluate_handoff (PRC-024)
 
 ---
 
+## Sign-off (DCO)
+
+Every commit must be signed off under the [Developer Certificate of Origin](DCO) v1.1. Use `git commit -s`, which appends a trailer of the form:
+
+```
+Signed-off-by: Your Name <your.email@example.com>
+```
+
+By signing off, you certify the contents of the [DCO](DCO) file at the repository root — in short, that you wrote the change or otherwise have the right to submit it under the project's licence. CI rejects pull requests with any unsigned commit. There is no separate CLA.
+
+Tip: configure your name and email once with `git config --global user.name "Your Name"` and `git config --global user.email "your.email@example.com"`. To sign off all commits by default, set `git config --global format.signoff true`.
+
+---
+
 ## Pull requests
 
 1. Branch from `main` using the naming convention above.

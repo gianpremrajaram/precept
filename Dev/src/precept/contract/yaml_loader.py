@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """YAML frontend: parses a YAML source into a ``HandoffContract`` IR.
 
 One of two v0 frontends declared in ADR 0001. The other is the decorator

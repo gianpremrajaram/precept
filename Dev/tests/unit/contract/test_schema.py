@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for ``precept.contract.schema``.
 
 Tests exercise the full schema exclusively through ``HandoffContract``

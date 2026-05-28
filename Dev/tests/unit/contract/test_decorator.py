@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for ``precept.contract.decorator`` (PRC-008).
 
 The decorator is a pure metadata-attachment mechanism at v0: it validates
