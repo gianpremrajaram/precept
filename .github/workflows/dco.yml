@@ -14,5 +14,12 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+      - name: Get PR commits
+        id: pr-commits
+        uses: tim-actions/get-pr-commits@master
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Check sign-off on every commit in PR
         uses: tim-actions/dco@master
+        with:
+          commits: ${{ steps.pr-commits.outputs.commits }}
