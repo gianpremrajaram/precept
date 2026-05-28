@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for ``precept.scoring.base``.
 
 Exercises the four PRC-010 surfaces: ``HandoffPayload``, ``FieldScore``,

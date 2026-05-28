@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Integration tests for the PRC-014 LangGraph paths.
 
 Exercises both PRC-014 surfaces against the *real* pinned ``langgraph``.

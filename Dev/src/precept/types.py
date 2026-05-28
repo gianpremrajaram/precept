@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """``ViolationEvent`` -- the canonical handoff-evaluation event shape.
 
 The :class:`precept.evaluator.engine.Evaluator` (PRC-013) emits one

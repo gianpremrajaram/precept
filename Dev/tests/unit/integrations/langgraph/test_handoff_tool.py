@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for ``precept.integrations.langgraph.handoff_tool`` (PRC-014).
 
 The LangGraph / langchain-core surface is faked in ``sys.modules`` before

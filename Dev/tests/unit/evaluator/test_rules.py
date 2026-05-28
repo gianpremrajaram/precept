@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for ``precept.evaluator.rules`` (PRC-012).
 
 Covers ``RuleResult`` construction, the three rule functions

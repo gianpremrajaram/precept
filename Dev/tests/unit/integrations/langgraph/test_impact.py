@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for ``precept.integrations.langgraph.impact`` (PRC-015).
 
 Covers the five AC cases (every template renders; in-place mutation

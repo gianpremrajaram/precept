@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Browser-driven snapshot tests for ``docs/index.html`` (PRC-022).
 
 Opt-in via the ``e2e`` marker. The default ``pytest`` run skips this

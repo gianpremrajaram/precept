@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """LangGraph handoff-tool wrapper (PRC-014).
 
 ``create_precept_handoff_tool`` is the *convenience* surface: a drop-in

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Evaluation engine package.
 
 Houses the per-field rule evaluators (PRC-012) and, in PRC-013, the

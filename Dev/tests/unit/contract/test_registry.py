@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Unit tests for ``precept.contract.registry`` (PRC-009).
 
 Covers register/get/list semantics, duplicate and missing-name error

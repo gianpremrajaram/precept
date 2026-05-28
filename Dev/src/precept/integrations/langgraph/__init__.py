@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """LangGraph integration package.
 
 Public names (PRC-014 AC explicitly requires both to be importable from

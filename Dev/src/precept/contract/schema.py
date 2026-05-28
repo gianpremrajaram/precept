@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Canonical intermediate representation for Precept contracts.
 
 ``HandoffContract`` is the single source of truth for contract declarations.

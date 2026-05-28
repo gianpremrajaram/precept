@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Violation impact summaries -- the populator (PRC-015).
 
 When a ``mode="block"`` contract fails, the supervisor (or any layer

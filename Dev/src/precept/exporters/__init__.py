@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Exporter abstractions and built-in concrete sinks.
 
 Houses the :class:`Exporter` ABC plus the four ship-with-MVP

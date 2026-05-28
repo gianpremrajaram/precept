@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Integration test for ``EmbeddingProxy`` end-to-end on a degraded handoff.
 
 Loads the real sentence-transformer model and scores a hand-built

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Tests for ``precept.exporters.otel`` (PRC-020).
 
 Covers the import-guard surface (module-level import + stub

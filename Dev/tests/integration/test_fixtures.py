@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """End-to-end evaluator integration against the committed demo fixtures (PRC-017).
 
 Loads the real ``EmbeddingProxy``, loads the YAML contracts from

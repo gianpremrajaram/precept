@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Embedding-based proxy scorer (PRC-011).
 
 ``EmbeddingProxy`` is the v0 concrete ``Scorer``: a sentence-transformers

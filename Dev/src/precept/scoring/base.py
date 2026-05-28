@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Scoring abstractions: scorer interface and result types.
 
 This module defines the four types that anchor the scoring layer:

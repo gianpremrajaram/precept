@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Schema-shape unit tests for the demo trace fixtures (PRC-017).
 
 The fixtures under ``examples/fixtures/`` are the input to PRC-019's demo

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Framework integration package.
 
 Houses the adapters that connect Precept's framework-agnostic core

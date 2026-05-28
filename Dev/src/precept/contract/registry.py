@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """In-process contract registry and lookup (PRC-009).
 
 Intended usage pattern: load contracts once at application startup

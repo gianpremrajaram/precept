@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Evaluation engine -- composes rules + scorer + exporter.
 
 The :class:`Evaluator` is the single entry point an integration layer
