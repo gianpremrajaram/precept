@@ -7,23 +7,23 @@
 
 > **Research preview (v0).** APIs are intentionally unstable and will change before v1. The framework is developed alongside an MSc dissertation at UCL (completing August 2026). Suitable for research, experimentation, and early integration feedback; not yet recommended for production.
 
-An open-source framework for measuring, enforcing, and studying information integrity at the boundaries between reasoning components in multi-agent AI systems.
+An open-source framework for measuring, enforcing, and studying how much **usable information** survives the boundaries between reasoning components in multi-agent AI systems — not how much information is shared, but how much the receiving agent can actually use for its task.
 
 **Live observatory:** [gianpremrajaram.github.io/precept](https://gianpremrajaram.github.io/precept/) renders the committed demo trace; drop your own `*.json` trace into the page to inspect a handoff locally (no upload, all rendering is client-side).
 
 ## The Problem
 
-Multi-agent AI systems degrade information at every handoff. When context passes from one agent to another, it is compressed, distorted, or silently dropped. Empirical measurements show information fidelity collapsing from 0.91 to below 0.20 across extended reasoning chains.
+Multi-agent AI systems degrade information at every handoff. When context passes from one agent to another, it is compressed, distorted, or silently dropped. In the first empirically grounded taxonomy of multi-agent LLM failures, Cemri et al. (MAST, NeurIPS 2025 Datasets & Benchmarks) attribute ~37% of failures to *inter-agent misalignment* — context lost, ignored, or distorted as it crosses agent boundaries — one of the three top-level categories in their failure taxonomy.
 
 ```
 Orchestrator          Agent A             Agent B             Agent C
-[full context] ──→ [~70% fidelity] ──→ [~40% fidelity] ──→ [~20% fidelity]
+[full context] ──→ [context lost] ──→ [more dropped] ──→ [coherent output]
                         ↓                    ↓                    ↓
-                   context compressed   details silently     output appears
-                   at handoff           dropped              coherent but is
-                                                             built on eroded
-                                                             evidence
+                   context compressed   details silently     built on eroded
+                   at handoff           dropped              evidence
 ```
+
+*Schematic, not measured values — quantifying how much usable information is lost at each boundary is exactly what Precept exists to do.*
 
 Every existing tool operates **downstream** of this problem:
 
@@ -50,7 +50,7 @@ Four independent, composable modules:
                     │    Coordination     │  │   Experimental     │
                     │  Pattern Observatory │  │     Testbed        │
                     │  MI + Transfer      │  │  5 information     │
-                    │  Entropy monitoring │  │  conditions, MARL  │
+                    │  Entropy monitoring │  │  conditions, SSDs  │
                     └──────────┬──────────┘  └─────┬──────────────┘
                                │                   │
                     ┌──────────▼───────────────────▼───────────────┐
@@ -65,30 +65,37 @@ Architectural decisions are recorded under [`docs/adr/`](docs/adr/); see [ADR 00
 
 The core design principle: **govern agent input vs output** If information has been silently degraded before an agent receives it, no amount of output evaluation can recover what was lost.
 
-A contract declares what information must survive a handoff:
+A contract declares what information must survive a handoff. This is the exact shape the YAML loader accepts today:
 
 ```yaml
-contract:
-  boundary: "researcher_to_analyst"
+name: researcher_to_analyst
+mode: block          # block raises on a violation; warn only emits an event
+description: "Research agent handing off to analyst"
+fields:
   required_fields:
     - query_intent
     - source_constraints
     - confidence_intervals
     - methodology_flags
-  min_integrity: 0.75
-  on_violation: reject_and_log
+  min_fidelity: 0.75
 ```
+
+`min_fidelity` is the floor on retained fidelity the downstream task requires — conceptually, the minimum *usable information* the receiving agent needs to do its job. In v0 the embedding proxy reads this as a cosine-similarity threshold; it is **not yet** a calibrated usable-information (PVI) measurement. Richer PVI-aware contract fields (for example, naming the downstream task or the model family the floor is calibrated for) are a roadmap item and are **not implemented today**.
 
 At runtime, the system intercepts the handoff boundary, scores information preservation, and enforces the contract **before** the receiving agent processes anything.
 
-**Scoring uses a dual-track architecture:**
+Scoring measures **usable information** — how much decision-relevant information survives a handoff *for the receiving agent's task*, not how much information is merely shared. It uses a dual-track architecture:
 
-| Track | Method | Use case | Latency |
-|-------|--------|----------|---------|
-| Real-time | Calibrated embedding-similarity proxy | Production enforcement | <1ms |
-| Offline | KSG mutual information estimator | Measurement, calibration | Minutes |
+| Track | Method | Use case | Status |
+|-------|--------|----------|--------|
+| Inline (runtime) | Embedding-similarity (cosine) gate on a sentence-transformer | Inline enforcement at the handoff boundary | **Ships in v0**; target **<1 ms** inline (see *Latency* below) — explicitly a proxy |
+| Offline | Calibrated usable-information via PVI (pointwise V-usable information) | Audit and calibration target | **In development** (dissertation deliverable, Aug 2026) |
 
-The KSG (Kraskov-Stogbauer-Grassberger) estimator provides rigorous mutual information measurement but scales poorly with dimensionality. The embedding proxy is calibrated against KSG benchmarks and deployed for runtime enforcement.
+**Why not mutual information?** Accurate KSG / k-nearest-neighbour MI estimation is unreliable much beyond ~10-13 dimensions, and the boundary payloads here are 384-dimensional sentence embeddings. MI therefore cannot serve as either the runtime score *or* the offline calibration target. KSG, MINE, and InfoNCE remain research baselines, not the method.
+
+The offline ground truth in development is **calibrated usable-information via PVI** — pointwise V-usable information (and its in-context variant), which measures usable information *for a specific predictive model family* and is tractable in high dimensions where MI is not. The v0 inline gate is a deliberately **cheap embedding-similarity (cosine) proxy**: it is *not* a mutual-information measurement and *not yet* the calibrated PVI score. The proxy will be calibrated against PVI (not against KSG). A Jensen-Shannon distribution-match gate is a planned addition to the inline track and is **not yet implemented**.
+
+**Latency.** The cosine comparison itself is sub-millisecond — a 384-dimensional dot product, ~0.3 µs. The cost is the embedding step: v0 re-embeds both sides of every contracted field on each call, so a typical handoff scores in roughly **5–40 ms on a laptop CPU** (a few milliseconds per contracted field). The **<1 ms inline target** is reached by reusing the producer's embedding rather than recomputing it at the boundary — an optimisation v0 does not yet perform.
 
 #### Enforcing a contract in LangGraph
 
@@ -135,6 +142,8 @@ Competition:  Low MI, low TE            → agents acting independently
 Collusion:    High MI, asymmetric TE    → unintended coordination, one agent leading
 ```
 
+**Scope (important).** Here, mutual information and transfer entropy are computed over **low-dimensional, discretised action trajectories** to *classify* coordination (cooperation / competition / collusion). This is a deliberately different object from scoring a boundary payload: payload fidelity is scored as **usable information (PVI)**, never as mutual information (see [Information Contract Layer](#1-information-contract-layer) above). MI over a few discretised action streams is tractable; MI over 384-dimensional payload embeddings is not — conflating the two would be a category error. The Observatory is a Phase 2 / in-development component.
+
 This is distinct from agent-drift metrics that track individual behavioural degradation. The Observatory monitors coordination dynamics *between* agents, making system-level behaviour auditable.
 
 ### 3. Experimental Testbed
@@ -149,10 +158,10 @@ Five systematically varied information conditions, applied to the same multi-age
 | Noisy | True state + calibrated noise | Signal corruption |
 | Asymmetric | Uneven information across agents | Power imbalances |
 
-Environments: DeepMind's Melting Pot (sequential social dilemmas) and the MARL-BC economic simulation framework (Cobb-Douglas production economies with heterogeneous agents).
+Environments: built on **SocialJax** (Guo et al., ICLR 2026) — a JAX-native evaluation suite of sequential social dilemmas derived from DeepMind's **Melting Pot**, roughly 50× faster than the Melting Pot RLlib baselines, with native IPPO / MAPPO implementations. Melting Pot remains the conceptual reference for the social-dilemma scenarios.
 
 Keep agents, tasks, learning algorithms constant, isolate information that crosses the boundary.
-Hypothesis: **information structure at agent boundaries shapes collective outcomes more than individual agent capability.**
+Hypothesis: **usable information at agent boundaries shapes collective outcomes more than individual agent capability.**
 
 ### 4. Collective Decision Interface
 
@@ -216,7 +225,7 @@ This framework operates directly at that integration layer:
 
 ## Status
 
-This framework is the subject of an active research programme combining an MSc dissertation (UCL, completing August 2026). The Contract Layer and MI estimation engine form the first build phase, followed by the Coordination Observatory and full MARL experimental validation.
+This framework is the subject of an active research programme combining an MSc dissertation (UCL, completing August 2026). The Contract Layer and usable-information scoring engine form the first build phase, followed by the Coordination Observatory and the SocialJax experimental testbed.
 
 | Component | State | Notes |
 |-----------|-------|-------|
@@ -225,20 +234,30 @@ This framework is the subject of an active research programme combining an MSc d
 | Embedding-similarity proxy scorer (`EmbeddingProxy`) | Working | v0 default; cosine on `all-MiniLM-L6-v2` |
 | OpenTelemetry exporter | Working | Opt-in via the `[otel]` extra |
 | Static HTML observatory and demo trace | Working | Live at the link above; client-side rendering only |
-| Calibrated scorer | In development | Dissertation deliverable; method choice pending KSG / Gaussian / InfoNCE / MINE comparison |
-| Coordination Observatory (MI and transfer entropy monitoring) | In development | Phase 2 |
-| Experimental testbed (Melting Pot, MARL-BC, five information conditions) | In development | Phase 2 |
+| Calibrated scorer | In development | Dissertation deliverable (Aug 2026); offline PVI / in-context PVI as the calibration target — KSG / MINE / InfoNCE are research baselines, not the method |
+| Coordination Observatory (MI / transfer entropy over low-dimensional action trajectories) | In development | Phase 2; coordination classification only — distinct from boundary-payload scoring |
+| Experimental testbed (SocialJax: IPPO / MAPPO, five information conditions) | In development | Phase 2 |
 | AutoGen, CrewAI, OpenAI Agents SDK integrations | Planned | Post-MVP |
 
 The public API surface under `precept.*` is not yet committed: `__all__` declarations finalise at the v0.1.0 release, and any imported symbol should be treated as subject to change until then.
 
 ## References
 
-1. Hill, Koh & Jishnuanandh (NeurIPS 2025), "Communicating Plans, Not Percepts": agents communicating compressed latent representations achieve 99.9% coordination success vs 12.2% for raw observation passing. Independent validation that information structure at agent boundaries determines collective performance.
+1. **Cemri, Pan, Yang, et al. (NeurIPS 2025 Datasets & Benchmarks), "Why Do Multi-Agent LLM Systems Fail?"** (MAST) — arXiv:2503.13657. A failure taxonomy over 200+ annotated multi-agent traces; ~37% of failures attributed to *inter-agent misalignment* (context lost, ignored, or distorted at handoffs). Anchors the problem statement above.
 
-2. Lin, Dong, Hao & Zhang (NeurIPS 2023), "Information Design in Multi-Agent Reinforcement Learning": demonstrates the revelation principle fails when both sender and receivers are learning agents. Classical information-theoretic results do not transfer directly to multi-agent learning systems.
+2. **Xu, Zhao, Song, Stewart & Ermon (ICLR 2020), "A Theory of Usable Information Under Computational Constraints"** — arXiv:2002.10689. Introduces predictive *V-information*, which — unlike Shannon mutual information — is reliably estimable in high dimensions with PAC-style guarantees. The theoretical basis for scoring *usable* information rather than mutual information.
 
-3. Johanson, Hughes, Timbers & Leibo (DeepMind, 2022), "Emergent Bartering Behaviour in Multi-Agent Reinforcement Learning": RL agents develop supracompetitive pricing not predicted by conventional theory, establishing the disconnect between autonomous agent behaviour and designed models.
+3. **Ethayarajh, Choi & Swayamdipta (ICML 2022, Outstanding Paper), "Understanding Dataset Difficulty with V-Usable Information"** — arXiv:2110.08420. Defines V-usable information and **pointwise V-usable information (PVI)**, the offline calibration target Precept is adopting.
+
+4. **Lu, Chen, Li, Bitterman, Savova & Gurevych (Findings of EMNLP 2023), "Measuring Pointwise V-Usable Information In-Context-ly"** — arXiv:2310.12300. In-context PVI: estimating PVI from a handful of exemplars.
+
+5. **Guo, Shi, Willis, Tomilin, Leibo & Du (ICLR 2026), "SocialJax: An Evaluation Suite for Multi-Agent Reinforcement Learning in Sequential Social Dilemmas"** — arXiv:2503.14576. JAX-native sequential social dilemmas derived from Melting Pot; at least 50× faster than RLlib baselines; IPPO / MAPPO. Basis for the experimental testbed.
+
+6. Hill, Koh En Wei & Jishnuanandh (NeurIPS 2025 SEA workshop), "Communicating Plans, Not Percepts: Scalable Multi-Agent Coordination with Embodied World Models" — arXiv:2508.02912. An engineered world model that communicates compact *plans* sustains near-perfect coordination as the environment scales (96.5–99.9% success), while a learned end-to-end message protocol collapses (to 12.2% at the 15×15 scale). Evidence that *how* information is structured at agent boundaries, not merely that agents communicate, governs collective performance.
+
+7. Lin, Dong, Hao & Zhang (NeurIPS 2023), "Information Design in Multi-Agent Reinforcement Learning": demonstrates the revelation principle fails when both sender and receivers are learning agents. Classical information-theoretic results do not transfer directly to multi-agent learning systems.
+
+8. Johanson, Hughes, Timbers & Leibo (DeepMind, 2022), "Emergent Bartering Behaviour in Multi-Agent Reinforcement Learning": RL agents develop supracompetitive pricing not predicted by conventional theory, establishing the disconnect between autonomous agent behaviour and designed models.
 
 ## Author
 
