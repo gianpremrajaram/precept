@@ -38,7 +38,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Verify required artefacts are committed
         # The deploy is a pure static-file copy. If the committed
         # snapshot is missing or schema-bumped, fail loudly here rather
