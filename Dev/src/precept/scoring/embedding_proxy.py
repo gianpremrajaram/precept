@@ -84,11 +84,13 @@ class EmbeddingProxy(Scorer):
     validated calibrated scorer is the post-dissertation Phase 2
     deliverable (``CalibratedScorer``, PRC-035).
 
-    ``score()`` is synchronous and CPU-bound (~100-500 ms per call on a
-    typical laptop). When called from inside an asyncio coroutine, wrap
-    with ``asyncio.to_thread(scorer.score, ...)`` to avoid blocking the
-    event loop. The PRC-014 LangGraph integration handles this
-    automatically when an async context is detected.
+    ``score()`` is synchronous and CPU-bound: a few milliseconds per
+    contracted field (~5-40 ms for a typical handoff on a laptop CPU;
+    the cosine comparison itself is sub-millisecond, the sentence-
+    transformer encode dominates). When called from inside an asyncio
+    coroutine, wrap with ``asyncio.to_thread(scorer.score, ...)`` to
+    avoid blocking the event loop. The PRC-014 LangGraph integration
+    handles this automatically when an async context is detected.
 
     Threshold semantics: ``FieldScore.passed = (score >= threshold)``,
     where ``threshold`` is ``contract.fields.min_fidelity`` if set,
