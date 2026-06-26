@@ -101,7 +101,7 @@ select = [
 "tests/**/*.py" = ["S101"]  # asserts are expected in tests
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.12"  # numpy stubs use PEP 695 `type` syntax (3.12+ only); ruff covers 3.10/3.11 compat
 strict = true
 files = ["src/precept"]
 warn_unused_configs = true
